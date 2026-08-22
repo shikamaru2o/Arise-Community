@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+
+# Frontend build artifacts - rebuild locally, don't rely on committed copies
+arise-site/node_modules/
+arise-site/dist/
