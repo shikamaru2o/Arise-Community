@@ -9,11 +9,10 @@
   },
   "scripts": {
     "start": "node server.js",
-    "build": "npm --prefix arise-site run build",
+    "build": "npm --prefix arise-site install && npm --prefix arise-site run build",
     "build:frontend": "npm --prefix arise-site run build",
     "db:init": "node db/init.js",
-    "lint": "npm --prefix arise-site run lint",
-    "postinstall": "npm --prefix arise-site install && npm --prefix arise-site run build"
+    "lint": "npm --prefix arise-site run lint"
   },
   "dependencies": {
     "cors": "^2.8.5",
