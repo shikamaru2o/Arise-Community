@@ -4,10 +4,19 @@
   "private": true,
   "type": "commonjs",
   "main": "server.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "npm --prefix arise-site run build",
+    "build:frontend": "npm --prefix arise-site run build",
+    "db:init": "node db/init.js",
+    "lint": "npm --prefix arise-site run lint",
+    "postinstall": "npm --prefix arise-site install && npm --prefix arise-site run build"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",

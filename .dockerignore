@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+arise-site/node_modules/
+
+# Build output (generated at image build time)
+public/
+arise-site/dist/
+
+# Env & secrets — never copy into image layers
+.env
+.env.*
+!.env.example
+arise-site/.env
+arise-site/.env.*
+
+# Git / editor / OS
+.git
+.gitignore
+.github
+CLAUDE.md
+*.log
+.vscode
+.idea
+.DS_Store
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml

@@ -24,14 +24,14 @@ const NAV_LINKS = [
 ];
 
 const SPEAKERS = [
-  { name: "Bishop Samuel Patta", img: IMG.patta },
-  { name: "Bonny Kinkar", img: IMG.bonny },
+  { name: "Bishop Samuel Patta", img: IMG.patta, description: "Description coming soon." },
+  { name: "Bonny Kinkar", img: IMG.bonny, description: "Description coming soon." },
 ];
 
 const ARTISTS = [
-  { name: "Joseph Raj", img: IMG.joseph },
-  { name: "Roney Maben", img: IMG.roney },
-  { name: "Mark Tribhuvan", img: IMG.mark },
+  { name: "Joseph Raj", img: IMG.joseph, description: "Description coming soon." },
+  { name: "Roney Maben", img: IMG.roney, description: "Description coming soon." },
+  { name: "Mark Tribhuvan", img: IMG.mark, description: "Description coming soon." },
 ];
 
 function Flame() {
@@ -91,12 +91,33 @@ function PromoVideo({ src }) {
 export default function ArisePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState(null);
+
+  useEffect(() => {
+    document.title = "Arise Association | Arise Conference 2026";
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!selectedPerson) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setSelectedPerson(null);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [selectedPerson]);
 
   return (
     <div className="arise-root">
@@ -138,7 +159,6 @@ export default function ArisePage() {
         .arise-nav.scrolled {
           background: rgba(31, 27, 46, 0.92);
           backdrop-filter: blur(6px);
-          box-shadow: 0 1px 0 rgba(227,168,87,0.15);
         }
         .arise-nav-logo { display: flex; align-items: center; gap: 10px; }
         .arise-nav-logo img { height: 38px; width: auto; border-radius: 4px; }
@@ -292,6 +312,18 @@ export default function ArisePage() {
         .arise-grid.three { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
 
         .arise-card { text-align: center; }
+        .arise-card-button {
+          appearance: none;
+          border: 0;
+          padding: 0;
+          color: inherit;
+          font: inherit;
+          cursor: pointer;
+        }
+        .arise-card-button:focus-visible {
+          outline: 2px solid var(--gold);
+          outline-offset: 6px;
+        }
         .arise-card-frame {
           position: relative;
           border-radius: 4px;
@@ -308,6 +340,38 @@ export default function ArisePage() {
         }
         .arise-card-frame img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.92); }
         .arise-card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; margin: 0; }
+
+        .arise-person-modal {
+          position: fixed; inset: 0; z-index: 100;
+          display: flex; align-items: center; justify-content: center;
+          padding: 24px;
+          background: rgba(23,19,31,0.78);
+        }
+        .arise-person-modal-content {
+          position: relative;
+          width: min(100%, 440px);
+          background: var(--panel);
+          border: 1px solid rgba(227,168,87,0.35);
+          border-radius: 6px;
+          box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+          padding: 28px;
+          text-align: center;
+        }
+        .arise-person-modal-content img {
+          width: 120px; height: 150px; object-fit: cover;
+          border-radius: 4px; margin-bottom: 18px;
+        }
+        .arise-person-modal-content h2 {
+          font-family: 'Fraunces', serif; font-weight: 500;
+          font-size: 28px; margin: 0 0 10px;
+        }
+        .arise-person-modal-content p { color: var(--lav); line-height: 1.7; margin: 0; }
+        .arise-person-modal-close {
+          position: absolute; top: 10px; right: 12px;
+          border: 0; background: transparent; color: var(--cream);
+          font-size: 24px; line-height: 1; padding: 4px 8px; cursor: pointer;
+        }
+        .arise-person-modal-close:hover { color: var(--gold); }
 
         .arise-location {
           background: var(--panel-2);
@@ -437,24 +501,7 @@ export default function ArisePage() {
                 Watch a quick look at what to expect this December — worship, teaching,
                 and a room full of people believing for a new season together.
               </p>
-              <a className="arise-btn" href="/volunteer">Register here</a>
-            </div>
-          </div>
-        </section>
-
-        <section className="arise-panel arise-about" id="about">
-          <span className="arise-eyebrow">Who we are</span>
-          <h2 className="arise-display">40+ years of ministry</h2>
-          <p>
-            For more than 40 years, Arise Association has been a home for worship,
-            prayer, and community across generations. What began as a small gathering
-            has grown into a movement that keeps pointing people toward hope, purpose,
-            and new beginnings — the same spirit we're carrying into Arise Conference 2026.
-          </p>
-          <div className="arise-about-stats">
-            <div className="arise-about-stat">
-              <div className="num">40+</div>
-              <div className="label">Years of ministry</div>
+              <a className="arise-btn" href="/volunteer">Give Now</a>
             </div>
           </div>
         </section>
@@ -464,12 +511,18 @@ export default function ArisePage() {
           <h2 className="arise-display">Our speakers</h2>
           <div className="arise-grid two">
             {SPEAKERS.map((s) => (
-              <div className="arise-card" key={s.name}>
+              <button
+                className="arise-card arise-card-button"
+                key={s.name}
+                type="button"
+                onClick={() => setSelectedPerson(s)}
+                aria-label={`View details for ${s.name}`}
+              >
                 <div className="arise-card-frame">
                   <img src={s.img} alt={s.name} />
                 </div>
                 <h3>{s.name}</h3>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -479,12 +532,18 @@ export default function ArisePage() {
           <h2 className="arise-display">Worship artists</h2>
           <div className="arise-grid three">
             {ARTISTS.map((a) => (
-              <div className="arise-card" key={a.name}>
+              <button
+                className="arise-card arise-card-button"
+                key={a.name}
+                type="button"
+                onClick={() => setSelectedPerson(a)}
+                aria-label={`View details for ${a.name}`}
+              >
                 <div className="arise-card-frame">
                   <img src={a.img} alt={a.name} />
                 </div>
                 <h3>{a.name}</h3>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -511,6 +570,52 @@ export default function ArisePage() {
           />
         </div>
       </section>
+
+      <section className="arise-panel arise-about" id="about">
+        <span className="arise-eyebrow">Who we are</span>
+        <h2 className="arise-display">40+ years of ministry</h2>
+        <p>
+          For more than 40 years, Arise Association has been a home for worship,
+          prayer, and community across generations. What began as a small gathering
+          has grown into a movement that keeps pointing people toward hope, purpose,
+          and new beginnings — the same spirit we're carrying into Arise Conference 2026.
+        </p>
+        <div className="arise-about-stats">
+          <div className="arise-about-stat">
+            <div className="num">40+</div>
+            <div className="label">Years of ministry</div>
+          </div>
+        </div>
+      </section>
+
+      {selectedPerson && (
+        <div
+          className="arise-person-modal"
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setSelectedPerson(null);
+          }}
+        >
+          <div
+            className="arise-person-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="person-modal-title"
+          >
+            <button
+              className="arise-person-modal-close"
+              type="button"
+              onClick={() => setSelectedPerson(null)}
+              aria-label="Close details"
+            >
+              ×
+            </button>
+            <img src={selectedPerson.img} alt={selectedPerson.name} />
+            <h2 id="person-modal-title" className="arise-display">{selectedPerson.name}</h2>
+            <p>{selectedPerson.description}</p>
+          </div>
+        </div>
+      )}
 
       <footer className="arise-footer" id="contact">
         <div className="arise-footer-grid">

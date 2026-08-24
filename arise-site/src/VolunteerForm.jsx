@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -59,6 +59,11 @@ export default function VolunteerForm() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [serverMessage, setServerMessage] = useState("");
+  const submittingRef = useRef(false);
+
+  useEffect(() => {
+    document.title = "Volunteer Registration | Arise Association";
+  }, []);
 
   const update = (key) => (e) => {
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -66,10 +71,13 @@ export default function VolunteerForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Guard against duplicate submissions (double Enter clicks / quick resubmits).
+    if (submittingRef.current || status === "submitting") return;
     const fieldErrors = validate(form);
     setErrors(fieldErrors);
     if (Object.keys(fieldErrors).length > 0) return;
 
+    submittingRef.current = true;
     setStatus("submitting");
     setServerMessage("");
     try {
@@ -90,6 +98,8 @@ export default function VolunteerForm() {
     } catch (err) {
       setServerMessage("Could not reach the server. Check your connection and try again.");
       setStatus("error");
+    } finally {
+      submittingRef.current = false;
     }
   };
 
