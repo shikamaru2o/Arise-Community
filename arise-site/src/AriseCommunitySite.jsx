@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-// Set these in arise-site/.env as VITE_HERO_VIDEO_URL / VITE_PROMO_VIDEO_URL.
-// Both are optional — leave unset and the hero falls back to the gradient
-// background, and the promo slot shows a placeholder instead of a broken video.
-const HERO_VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL || "";
-const PROMO_VIDEO_URL = import.meta.env.VITE_PROMO_VIDEO_URL || "";
+// Optional Vite overrides are useful for externally hosted videos. The bundled
+// public files remain the production default so media works without env setup.
+const HERO_VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL || "/videos/arise-hero.mp4";
+const PROMO_VIDEO_URL = import.meta.env.VITE_PROMO_VIDEO_URL || "/videos/arise-promo.mp4";
 
 const IMG = {
-  logo: "https://lightcyan-elephant-814869.hostingersite.com/wp-content/uploads/2026/08/ChatGPT-Image-Aug-13-2026-03_50_04-PM.png",
-  patta: "https://lightcyan-elephant-814869.hostingersite.com/wp-content/uploads/2026/08/Screenshot-2026-08-15-170610.png",
-  bonny: "https://lightcyan-elephant-814869.hostingersite.com/wp-content/uploads/2026/08/bonny-e1786793010758.png",
-  joseph: "https://lightcyan-elephant-814869.hostingersite.com/wp-content/uploads/2026/08/Screenshot-2026-08-15-170820-2.png",
-  roney: "https://lightcyan-elephant-814869.hostingersite.com/wp-content/uploads/2026/08/350756036_956743608847777_1989990852913251343_n.jpg",
-  mark: "https://lightcyan-elephant-814869.hostingersite.com/wp-content/uploads/2026/08/images-1.jpg",
+  logo: "/images/arise-logo.svg",
+  patta: "/images/speakers/patta.webp",
+  bonny: "/images/speakers/bonny.webp",
+  joseph: "/images/artists/joseph.webp",
+  roney: "/images/artists/roney.webp",
+  mark: "/images/artists/mark.webp",
 };
 
 const NAV_LINKS = [
@@ -55,8 +54,7 @@ function HeroBackgroundVideo({ src }) {
   return (
     <video
       className="arise-hero-video"
-      autoPlay
-      muted
+      controls
       loop
       playsInline
       onError={() => setErrored(true)}
@@ -316,6 +314,7 @@ export default function ArisePage() {
           appearance: none;
           border: 0;
           padding: 0;
+          background: transparent;
           color: inherit;
           font: inherit;
           cursor: pointer;

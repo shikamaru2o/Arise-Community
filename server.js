@@ -19,7 +19,7 @@ if (!ADMIN_API_KEY) {
 /**
  * Minimal CSP — only the external origins the site actually uses.
  * - Google Fonts CSS + font files (Fraunces, Work Sans)
- * - Content images hosted on lightcyan-elephant-814869.hostingersite.com
+ * - Content images served from this app's same-origin public directory
  * - Google Maps embed for the location section
  * Videos are served same-origin from /videos, so media-src 'self' suffices.
  * Inline <style> blocks are required by the React components.
@@ -32,11 +32,10 @@ const CSP_DIRECTIVES = {
   imgSrc: [
     "'self'",
     'data:',
-    'https://lightcyan-elephant-814869.hostingersite.com',
   ],
   mediaSrc: ["'self'"],
   connectSrc: ["'self'"],
-  frameSrc: ["'self'", 'https://maps.google.com'],
+  frameSrc: ["'self'", 'https://maps.google.com', 'https://www.google.com'],
   objectSrc: ["'none'"],
   baseUri: ["'self'"],
   formAction: ["'self'"],
@@ -132,9 +131,9 @@ const pool = process.env.DATABASE_URL
   : mysql.createPool({
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT, 10) || 3306,
-      user: process.env.DB_USER,
+      user: process.env.DB_USER || process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      database: process.env.DB_NAME || process.env.DB_DATABASE,
       waitForConnections: true,
       connectionLimit: parseInt(process.env.DB_POOL_MAX, 10) || 10,
       maxIdle: parseInt(process.env.DB_POOL_IDLE, 10) || 10,
@@ -221,6 +220,55 @@ app.get('/health', async (_req, res) => {
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/health/db', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    return res.json({ success: true, database: 'connected' });
+  } catch (err) {
+    console.error('Database health check failed:', err.message);
+    return res.status(503).json({
+      success: false,
+      database: 'unreachable',
+      error: 'Database connection failed.',
+    });
+  }
+});
+
+app.get('/api/health/db/table', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+  } catch (err) {
+    console.error('Database table connection check failed:', err.message);
+    return res.status(503).json({
+      success: false,
+      database: 'unreachable',
+      table: 'volunteers',
+      tableAccessible: false,
+      error: 'Database connection failed.',
+    });
+  }
+
+  try {
+    const [rows] = await pool.query('SELECT COUNT(*) AS count FROM volunteers');
+    return res.json({
+      success: true,
+      database: 'connected',
+      table: 'volunteers',
+      tableAccessible: true,
+      rowCount: Number(rows[0].count),
+    });
+  } catch (err) {
+    console.error('Database table check failed:', err.message);
+    return res.status(503).json({
+      success: false,
+      database: 'connected',
+      table: 'volunteers',
+      tableAccessible: false,
+      error: 'Database table check failed.',
+    });
+  }
 });
 
 app.post('/api/volunteers', submitLimiter, async (req, res) => {
