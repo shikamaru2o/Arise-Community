@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useI18n } from "./i18n";
 
 // Optional Vite overrides are useful for externally hosted videos. The bundled
 // public files remain the production default so media works without env setup.
@@ -15,24 +16,24 @@ const IMG = {
 };
 
 const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Location", href: "#location" },
-  { label: "Contact", href: "#contact" },
+  { key: "home", href: "#home" },
+  { key: "about", href: "#about" },
+  { key: "location", href: "#location" },
+  { key: "contact", href: "#contact" },
 ];
 
 const MOBILE_LINKS = [
   ...NAV_LINKS,
-  { label: "Join the team", href: "/volunteer" },
-  { label: "Register", href: "/register" },
-  { label: "Give Now", href: "/give" },
+  { key: "join", href: "/volunteer" },
+  { key: "register", href: "/register" },
+  { key: "give", href: "/give" },
 ];
 
 const FOOTER_LINKS = [
   ...NAV_LINKS,
-  { label: "Join the team", href: "/volunteer" },
-  { label: "Register", href: "/register" },
-  { label: "Give Now", href: "/give" },
+  { key: "join", href: "/volunteer" },
+  { key: "register", href: "/register" },
+  { key: "give", href: "/give" },
 ];
 
 const SPEAKERS = [
@@ -78,6 +79,7 @@ function HeroBackgroundVideo({ src }) {
 }
 
 function PromoVideo({ src }) {
+  const { t } = useI18n();
   const [errored, setErrored] = useState(false);
   if (src && !errored) {
     return (
@@ -94,19 +96,20 @@ function PromoVideo({ src }) {
   return (
     <div className="arise-promo-placeholder">
       <div className="arise-promo-play">▶</div>
-      <span>Promo video placeholder</span>
+      <span>{t("join.videoPlaceholder")}</span>
     </div>
   );
 }
 
 export default function ArisePage() {
+  const { language, setLanguage, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
 
   useEffect(() => {
-    document.title = "Arise Association | Arise Conference 2026";
-  }, []);
+    document.title = `${t("brand")} | ${t("hero.chip")}`;
+  }, [t, language]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -191,6 +194,9 @@ export default function ArisePage() {
         .arise-nav-action:hover { background: transparent; color: var(--gold); transform: translateY(-1px); }
         .arise-nav-action.secondary { background: transparent; color: var(--gold); }
         .arise-nav-action.secondary:hover { background: var(--gold); color: var(--ink); }
+        .arise-language { display: flex; align-items: center; gap: 6px; color: var(--lav); font-size: 12px; white-space: nowrap; }
+        .arise-language button { border: 0; padding: 2px; background: transparent; color: var(--lav); font: inherit; cursor: pointer; }
+        .arise-language button.active, .arise-language button:hover { color: var(--gold); }
         .arise-nav-burger { display: none; background: none; border: none; color: var(--cream); font-size: 22px; cursor: pointer; }
         .arise-mobile-menu {
           display: none; flex-direction: column; gap: 18px; padding: 22px 6vw 26px;
@@ -356,7 +362,7 @@ export default function ArisePage() {
           border: 1px solid rgba(227,168,87,0.35);
           pointer-events: none;
         }
-        .arise-card-frame img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.92); }
+        .arise-card-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; filter: saturate(0.92); }
         .arise-card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; margin: 0; }
 
         .arise-person-modal {
@@ -377,7 +383,7 @@ export default function ArisePage() {
         }
         .arise-person-modal-content img {
           width: 120px; height: 150px; object-fit: cover;
-          border-radius: 4px; margin-bottom: 18px;
+          object-position: center; border-radius: 4px; margin-bottom: 18px;
         }
         .arise-person-modal-content h2 {
           font-family: 'Fraunces', serif; font-weight: 500;
@@ -449,23 +455,28 @@ export default function ArisePage() {
 
       <nav className={`arise-nav ${scrolled ? "scrolled" : ""}`} id="home">
         <div className="arise-nav-logo">
-          <img src={IMG.logo} alt="Arise Association logo" />
-          <span>Arise Association</span>
+          <img src={IMG.logo} alt={`${t("brand")} logo`} />
+          <span>{t("brand")}</span>
         </div>
         <div className="arise-nav-groups">
           <div className="arise-nav-links">
             {NAV_LINKS.map((l) => (
-              <a key={l.label} href={l.href}>{l.label}</a>
+              <a key={l.key} href={l.href}>{t(`nav.${l.key}`)}</a>
             ))}
           </div>
           <div className="arise-nav-actions">
-            <a className="arise-nav-action" href="/volunteer">Join the Team</a>
-            <a className="arise-nav-action secondary" href="/give">Give Now</a>
+            <a className="arise-nav-action" href="/volunteer">{t("nav.join")}</a>
+            <a className="arise-nav-action secondary" href="/give">{t("nav.give")}</a>
+            <div className="arise-language" aria-label={t("nav.language")}>
+              <button className={language === "en" ? "active" : ""} type="button" onClick={() => setLanguage("en")}>EN</button>
+              <span>|</span>
+              <button className={language === "hi" ? "active" : ""} type="button" onClick={() => setLanguage("hi")}>हिंदी</button>
+            </div>
           </div>
         </div>
         <button
           className="arise-nav-burger"
-          aria-label="Toggle menu"
+          aria-label={t("common.toggleMenu")}
           onClick={() => setMenuOpen((v) => !v)}
         >
           {menuOpen ? "✕" : "☰"}
@@ -474,7 +485,7 @@ export default function ArisePage() {
       {menuOpen && (
         <div className="arise-mobile-menu">
           {MOBILE_LINKS.map((l) => (
-            <a key={l.label} href={l.href} onClick={() => setMenuOpen(false)}>{l.label}</a>
+            <a key={l.key} href={l.href} onClick={() => setMenuOpen(false)}>{t(`nav.${l.key}`)}</a>
           ))}
         </div>
       )}
@@ -487,28 +498,25 @@ export default function ArisePage() {
         <div className="arise-hero-content">
           <div className="arise-hero-chip">
             <Flame />
-            Arise Conference 2026
+            {t("hero.chip")}
           </div>
           <h1 className="arise-display">
-            Your time <em>has come</em>
+            {t("hero.titleBefore")} <em>{t("hero.titleEmphasis")}</em>
           </h1>
           <p className="arise-hero-sub">
-            This Christmas, Arise Association invites you to a special celebration of hope,
-            faith, and new beginnings. Every season has a purpose, and a new chapter can
-            bring restoration and new possibilities into our lives. Come with your family
-            and friends. Come with expectation.
+            {t("hero.description")}
           </p>
           <div className="arise-hero-meta">
             <div>
-              <div className="label">Venue</div>
-              <div className="value">Don Bosco, Nerul</div>
+              <div className="label">{t("hero.venueLabel")}</div>
+              <div className="value">{t("hero.venue")}</div>
             </div>
             <div>
-              <div className="label">Dates</div>
-              <div className="value">December 11–13</div>
+              <div className="label">{t("hero.datesLabel")}</div>
+              <div className="value">{t("hero.dates")}</div>
             </div>
           </div>
-          <a className="arise-btn" href="/register">Register here</a>
+          <a className="arise-btn" href="/register">{t("hero.register")}</a>
         </div>
       </header>
 
@@ -519,20 +527,17 @@ export default function ArisePage() {
               <PromoVideo src={PROMO_VIDEO_URL} />
             </div>
             <div className="arise-joinus-copy">
-              <span className="arise-eyebrow">Join us</span>
-              <h2 className="arise-display">A night to remember</h2>
-              <p>
-                Watch a quick look at what to expect this December — worship, teaching,
-                and a room full of people believing for a new season together.
-              </p>
-              <a className="arise-btn" href="/give">Give Now</a>
+              <span className="arise-eyebrow">{t("join.eyebrow")}</span>
+              <h2 className="arise-display">{t("join.title")}</h2>
+              <p>{t("join.description")}</p>
+              <a className="arise-btn" href="/give">{t("nav.give")}</a>
             </div>
           </div>
         </section>
 
         <section className="arise-panel" id="speakers">
-          <span className="arise-eyebrow">Voices for the evening</span>
-          <h2 className="arise-display">Our speakers</h2>
+          <span className="arise-eyebrow">{t("people.speakersEyebrow")}</span>
+          <h2 className="arise-display">{t("people.speakersTitle")}</h2>
           <div className="arise-grid two">
             {SPEAKERS.map((s) => (
               <button
@@ -540,10 +545,10 @@ export default function ArisePage() {
                 key={s.name}
                 type="button"
                 onClick={() => setSelectedPerson(s)}
-                aria-label={`View details for ${s.name}`}
+                aria-label={t("people.viewDetails", { name: s.name })}
               >
                 <div className="arise-card-frame">
-                  <img src={s.img} alt={s.name} />
+                  <img src={s.img} alt={s.name} style={{ objectPosition: s.objectPosition || "center" }} />
                 </div>
                 <h3>{s.name}</h3>
               </button>
@@ -552,8 +557,8 @@ export default function ArisePage() {
         </section>
 
         <section className="arise-panel" id="artists">
-          <span className="arise-eyebrow">Sound of the evening</span>
-          <h2 className="arise-display">Worship artists</h2>
+          <span className="arise-eyebrow">{t("people.artistsEyebrow")}</span>
+          <h2 className="arise-display">{t("people.artistsTitle")}</h2>
           <div className="arise-grid three">
             {ARTISTS.map((a) => (
               <button
@@ -561,10 +566,10 @@ export default function ArisePage() {
                 key={a.name}
                 type="button"
                 onClick={() => setSelectedPerson(a)}
-                aria-label={`View details for ${a.name}`}
+                aria-label={t("people.viewDetails", { name: a.name })}
               >
                 <div className="arise-card-frame">
-                  <img src={a.img} alt={a.name} />
+                  <img src={a.img} alt={a.name} style={{ objectPosition: a.objectPosition || "center" }} />
                 </div>
                 <h3>{a.name}</h3>
               </button>
@@ -575,20 +580,15 @@ export default function ArisePage() {
 
       <section className="arise-location" id="location">
         <div className="arise-location-copy">
-          <span className="arise-eyebrow">How to get there</span>
-          <div className="arise-location-name">Don Bosco Nerul</div>
-          <div className="arise-location-sub">Nerul, Navi Mumbai</div>
-          <p>
-            Use the map to easily locate the venue and plan your journey to Arise
-            Conference 2026. We look forward to welcoming you.
-          </p>
-          <a className="arise-btn" href="https://maps.google.com/maps?q=DON%20BOSCO%20SEAWOODS%20MUMBAI" target="_blank" rel="noopener noreferrer">
-            Get directions
-          </a>
+          <span className="arise-eyebrow">{t("location.eyebrow")}</span>
+          <div className="arise-location-name">{t("location.name")}</div>
+          <div className="arise-location-sub">{t("location.sub")}</div>
+          <p>{t("location.description")}</p>
+          <a className="arise-btn" href="https://maps.google.com/maps?q=DON%20BOSCO%20SEAWOODS%20MUMBAI" target="_blank" rel="noopener noreferrer">{t("location.directions")}</a>
         </div>
         <div className="arise-map-frame">
           <iframe
-            title="Don Bosco Nerul location"
+            title={t("location.mapTitle")}
             src="https://maps.google.com/maps?q=DON%20BOSCO%20SEAWOODS%20MUMBAI&t=m&z=13&output=embed&iwloc=near"
             loading="lazy"
           />
@@ -596,18 +596,13 @@ export default function ArisePage() {
       </section>
 
       <section className="arise-panel arise-about" id="about">
-        <span className="arise-eyebrow">Who we are</span>
-        <h2 className="arise-display">40+ years of ministry</h2>
-        <p>
-          For more than 40 years, Arise Association has been a home for worship,
-          prayer, and community across generations. What began as a small gathering
-          has grown into a movement that keeps pointing people toward hope, purpose,
-          and new beginnings — the same spirit we're carrying into Arise Conference 2026.
-        </p>
+        <span className="arise-eyebrow">{t("about.eyebrow")}</span>
+        <h2 className="arise-display">{t("about.title")}</h2>
+        <p>{t("about.description")}</p>
         <div className="arise-about-stats">
           <div className="arise-about-stat">
             <div className="num">40+</div>
-            <div className="label">Years of ministry</div>
+            <div className="label">{t("about.years")}</div>
           </div>
         </div>
       </section>
@@ -630,13 +625,17 @@ export default function ArisePage() {
               className="arise-person-modal-close"
               type="button"
               onClick={() => setSelectedPerson(null)}
-              aria-label="Close details"
+              aria-label={t("common.close")}
             >
               ×
             </button>
-            <img src={selectedPerson.img} alt={selectedPerson.name} />
+            <img
+              src={selectedPerson.img}
+              alt={selectedPerson.name}
+              style={{ objectPosition: selectedPerson.objectPosition || "center" }}
+            />
             <h2 id="person-modal-title" className="arise-display">{selectedPerson.name}</h2>
-            <p>{selectedPerson.description}</p>
+            <p>{t("people.descriptionSoon")}</p>
           </div>
         </div>
       )}
@@ -645,29 +644,26 @@ export default function ArisePage() {
         <div className="arise-footer-grid">
           <div>
             <div className="arise-footer-logo">
-              <img src={IMG.logo} alt="Arise Association logo" />
-              <span>Arise Association</span>
+              <img src={IMG.logo} alt={`${t("brand")} logo`} />
+              <span>{t("brand")}</span>
             </div>
-            <p style={{ color: "var(--lav)", fontSize: 14, lineHeight: 1.7, maxWidth: 260 }}>
-              A warm and vibrant community offering worship, prayer, biblical teaching,
-              ministries, events, and opportunities to give.
-            </p>
+            <p style={{ color: "var(--lav)", fontSize: 14, lineHeight: 1.7, maxWidth: 260 }}>{t("footer.description")}</p>
           </div>
           <div>
-            <h4>Menu</h4>
+            <h4>{t("footer.menu")}</h4>
             <ul>
               {FOOTER_LINKS.map((l) => (
-                <li key={l.label}><a href={l.href}>{l.label}</a></li>
+                <li key={l.key}><a href={l.href}>{t(`nav.${l.key}`)}</a></li>
               ))}
             </ul>
           </div>
           <div>
-            <h4>Contact</h4>
+            <h4>{t("footer.contact")}</h4>
             <ul>
               <li><a href="mailto:simplesamj@gmail.com">simplesamj@gmail.com</a></li>
               <li><a href="tel:+919829102890">(+91) 9829102890</a></li>
             </ul>
-            <h4 style={{ marginTop: 24 }}>Socials</h4>
+            <h4 style={{ marginTop: 24 }}>{t("footer.socials")}</h4>
             <ul style={{ flexDirection: "row", gap: 16 }}>
               <li><a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a></li>
               <li><a href="https://instagram.com/arisecommunityindia" target="_blank" rel="noopener noreferrer">Instagram</a></li>
@@ -676,8 +672,8 @@ export default function ArisePage() {
           </div>
         </div>
         <div className="arise-footer-bottom">
-          <span>© 2026 Arise Association. All rights reserved.</span>
-          <span>Nerul, Navi Mumbai</span>
+          <span>{t("footer.copyright")}</span>
+          <span>{t("footer.city")}</span>
         </div>
       </footer>
     </div>

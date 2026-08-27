@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import LanguageSelector from "./LanguageSelector";
+import { useI18n } from "./i18n";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -23,22 +25,22 @@ const EMPTY_FORM = {
   volunteerRole: "",
 };
 
-function validate(form) {
+function validate(form, t) {
   const errors = {};
-  if (!form.firstName.trim()) errors.firstName = "First name is required.";
-  if (!form.lastName.trim()) errors.lastName = "Last name is required.";
-  if (!form.email.trim()) errors.email = "Email address is required.";
+  if (!form.firstName.trim()) errors.firstName = t("volunteer.required", { field: t("volunteer.firstName") });
+  if (!form.lastName.trim()) errors.lastName = t("volunteer.required", { field: t("volunteer.lastName") });
+  if (!form.email.trim()) errors.email = t("volunteer.required", { field: t("volunteer.email") });
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-    errors.email = "Enter a valid email address.";
+    errors.email = t("volunteer.invalidEmail");
   }
   if (form.mobileNumber && !/^[0-9+()\-\s]{7,20}$/.test(form.mobileNumber.trim())) {
-    errors.mobileNumber = "Enter a valid mobile number.";
+    errors.mobileNumber = t("volunteer.invalidMobile");
   }
-  if (!form.ageGroup) errors.ageGroup = "Select an age group.";
-  if (!form.churchName.trim()) errors.churchName = "Church name is required.";
-  if (!form.pastorName.trim()) errors.pastorName = "Pastor's name is required.";
-  if (!form.churchLocation.trim()) errors.churchLocation = "Church location is required.";
-  if (!form.volunteerRole) errors.volunteerRole = "Select a preferred volunteer role.";
+  if (!form.ageGroup) errors.ageGroup = t("volunteer.selectAge");
+  if (!form.churchName.trim()) errors.churchName = t("volunteer.required", { field: t("volunteer.church") });
+  if (!form.pastorName.trim()) errors.pastorName = t("volunteer.required", { field: t("volunteer.pastor") });
+  if (!form.churchLocation.trim()) errors.churchLocation = t("volunteer.required", { field: t("volunteer.churchLocation") });
+  if (!form.volunteerRole) errors.volunteerRole = t("volunteer.selectVolunteerRole");
   return errors;
 }
 
@@ -55,6 +57,7 @@ function Field({ label, required, error, children }) {
 }
 
 export default function VolunteerForm() {
+  const { t } = useI18n();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
@@ -62,8 +65,8 @@ export default function VolunteerForm() {
   const submittingRef = useRef(false);
 
   useEffect(() => {
-    document.title = "Volunteer Registration | Arise Association";
-  }, []);
+    document.title = `${t("volunteer.title")} | ${t("brand")}`;
+  }, [t]);
 
   const update = (key) => (e) => {
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -73,7 +76,7 @@ export default function VolunteerForm() {
     e.preventDefault();
     // Guard against duplicate submissions (double Enter clicks / quick resubmits).
     if (submittingRef.current || status === "submitting") return;
-    const fieldErrors = validate(form);
+    const fieldErrors = validate(form, t);
     setErrors(fieldErrors);
     if (Object.keys(fieldErrors).length > 0) return;
 
@@ -89,14 +92,14 @@ export default function VolunteerForm() {
       const data = await res.json();
       if (!res.ok) {
         if (data.errors) setErrors(data.errors);
-        setServerMessage(data.error || "Something went wrong. Please check the form.");
+        setServerMessage(data.error || t("volunteer.genericError"));
         setStatus("error");
         return;
       }
       setStatus("success");
       setForm(EMPTY_FORM);
     } catch (err) {
-      setServerMessage("Could not reach the server. Check your connection and try again.");
+      setServerMessage(t("volunteer.serverError"));
       setStatus("error");
     } finally {
       submittingRef.current = false;
@@ -107,11 +110,12 @@ export default function VolunteerForm() {
     return (
       <div className="vf-root">
         <VfStyles />
+        <div className="vf-language"><LanguageSelector /></div>
         <div className="vf-success">
-          <h2>You're registered</h2>
-          <p>Thanks for signing up to volunteer. We'll be in touch with next steps.</p>
+          <h2>{t("volunteer.successTitle")}</h2>
+          <p>{t("volunteer.successText")}</p>
           <button className="vf-btn" onClick={() => setStatus("idle")}>
-            Register another volunteer
+            {t("volunteer.another")}
           </button>
         </div>
       </div>
@@ -121,67 +125,68 @@ export default function VolunteerForm() {
   return (
     <div className="vf-root">
       <VfStyles />
+      <div className="vf-language"><LanguageSelector /></div>
       <form className="vf-form" onSubmit={handleSubmit} noValidate>
-        <h2 className="vf-title">Volunteer registration</h2>
-        <p className="vf-subtitle">Fields marked * are required.</p>
+        <h2 className="vf-title">{t("volunteer.title")}</h2>
+        <p className="vf-subtitle">{t("volunteer.subtitle")}</p>
 
         <div className="vf-row">
-          <Field label="First name" required error={errors.firstName}>
+          <Field label={t("volunteer.firstName")} required error={errors.firstName}>
             <input value={form.firstName} onChange={update("firstName")} type="text" />
           </Field>
-          <Field label="Last name" required error={errors.lastName}>
+          <Field label={t("volunteer.lastName")} required error={errors.lastName}>
             <input value={form.lastName} onChange={update("lastName")} type="text" />
           </Field>
         </div>
 
         <div className="vf-row">
-          <Field label="Mobile number" error={errors.mobileNumber}>
+          <Field label={t("volunteer.mobile")} error={errors.mobileNumber}>
             <input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" placeholder="+91 98765 43210" />
           </Field>
-          <Field label="Email address" required error={errors.email}>
+          <Field label={t("volunteer.email")} required error={errors.email}>
             <input value={form.email} onChange={update("email")} type="email" />
           </Field>
         </div>
 
         <div className="vf-row">
-          <Field label="Age group" required error={errors.ageGroup}>
+          <Field label={t("volunteer.age")} required error={errors.ageGroup}>
             <select value={form.ageGroup} onChange={update("ageGroup")}>
-              <option value="">Select</option>
-              {AGE_GROUPS.map((g) => <option key={g} value={g}>{g}</option>)}
+              <option value="">{t("volunteer.select")}</option>
+              {AGE_GROUPS.map((g) => <option key={g} value={g}>{t(`volunteer.${g === "15-21" ? "age15" : g === "21-30" ? "age21" : "age30"}`)}</option>)}
             </select>
           </Field>
-          <Field label="Gender" error={errors.gender}>
+          <Field label={t("volunteer.gender")} error={errors.gender}>
             <select value={form.gender} onChange={update("gender")}>
-              <option value="">Prefer not to say</option>
-              {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
+              <option value="">{t("volunteer.preferNot")}</option>
+              {GENDERS.map((g) => <option key={g} value={g}>{t(`volunteer.${g === "Male" ? "male" : g === "Female" ? "female" : "third"}`)}</option>)}
             </select>
           </Field>
         </div>
 
         <div className="vf-row">
-          <Field label="Church name" required error={errors.churchName}>
+          <Field label={t("volunteer.church")} required error={errors.churchName}>
             <input value={form.churchName} onChange={update("churchName")} type="text" />
           </Field>
-          <Field label="Pastor's name" required error={errors.pastorName}>
+          <Field label={t("volunteer.pastor")} required error={errors.pastorName}>
             <input value={form.pastorName} onChange={update("pastorName")} type="text" />
           </Field>
         </div>
 
-        <Field label="Church location" required error={errors.churchLocation}>
+        <Field label={t("volunteer.churchLocation")} required error={errors.churchLocation}>
           <input value={form.churchLocation} onChange={update("churchLocation")} type="text" />
         </Field>
 
-        <Field label="Preferred volunteer role" required error={errors.volunteerRole}>
+        <Field label={t("volunteer.role")} required error={errors.volunteerRole}>
           <select value={form.volunteerRole} onChange={update("volunteerRole")}>
-            <option value="">Select a role</option>
-            {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            <option value="">{t("volunteer.selectRole")}</option>
+              {ROLES.map((r) => <option key={r} value={r}>{t(`volunteer.roles.${r}`)}</option>)}
           </select>
         </Field>
 
         {serverMessage && <p className="vf-server-message">{serverMessage}</p>}
 
         <button className="vf-btn vf-submit" type="submit" disabled={status === "submitting"}>
-          {status === "submitting" ? "Submitting..." : "Register to volunteer"}
+          {status === "submitting" ? t("volunteer.submitting") : t("volunteer.submit")}
         </button>
       </form>
     </div>
@@ -192,6 +197,7 @@ function VfStyles() {
   return (
     <style>{`
       .vf-root {
+        position: relative;
         --ink: #1F1B2E;
         --gold: #E3A857;
         --cream: #F7F3EC;
@@ -205,6 +211,7 @@ function VfStyles() {
         display: flex;
         justify-content: center;
       }
+      .vf-language { position: absolute; top: 24px; right: 6vw; }
       .vf-form {
         width: 100%;
         max-width: 640px;

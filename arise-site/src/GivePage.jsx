@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import LanguageSelector from "./LanguageSelector";
+import { useI18n } from "./i18n";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || "";
@@ -21,6 +23,7 @@ function loadRazorpay() {
 }
 
 export default function GivePage() {
+  const { language, t } = useI18n();
   const [amount, setAmount] = useState(1000);
   const [customAmount, setCustomAmount] = useState("");
   const [status, setStatus] = useState("idle");
@@ -29,8 +32,8 @@ export default function GivePage() {
   const submittingRef = useRef(false);
 
   useEffect(() => {
-    document.title = "Give Now | Arise Association";
-  }, []);
+    document.title = `${t("give.title")} | ${t("brand")}`;
+  }, [t, language]);
 
   const selectedAmount = customAmount ? Number(customAmount) : amount;
 
@@ -38,12 +41,12 @@ export default function GivePage() {
     if (submittingRef.current || status === "loading") return;
     if (!RAZORPAY_KEY_ID) {
       setStatus("error");
-      setMessage("Online donations are not configured yet.");
+      setMessage(t("give.notConfigured"));
       return;
     }
     if (!Number.isInteger(selectedAmount) || selectedAmount < 100 || selectedAmount > 100000) {
       setStatus("error");
-      setMessage("Enter an amount between INR 100 and INR 100,000.");
+      setMessage(t("give.amountError"));
       return;
     }
 
@@ -58,7 +61,7 @@ export default function GivePage() {
       });
       const order = await orderResponse.json();
       if (!orderResponse.ok) throw new Error(order.error || "Could not start donation.");
-      if (!(await loadRazorpay())) throw new Error("Payment checkout could not load. Please try again.");
+      if (!(await loadRazorpay())) throw new Error(t("give.checkoutError"));
 
       const options = {
         key: order.keyId,
@@ -89,7 +92,7 @@ export default function GivePage() {
       setStatus("idle");
     } catch (error) {
       setStatus("error");
-      setMessage(error.message || "Could not start donation. Please try again.");
+      setMessage(error.message || t("give.startError"));
     } finally {
       submittingRef.current = false;
     }
@@ -98,45 +101,47 @@ export default function GivePage() {
   return (
     <main className="give-root">
       <GiveStyles />
+      <div className="give-language"><LanguageSelector /></div>
       <section className="give-intro">
         <span className="give-eyebrow">Arise Association</span>
-        <h1>Give Now</h1>
-        <p>Every contribution helps support the work of Arise Association and the communities we serve.</p>
+        <h1>{t("give.title")}</h1>
+        <p>{t("give.intro")}</p>
       </section>
       <section className="give-methods" aria-label="Donation methods">
         <article className="give-method">
           <span className="give-method-number">01</span>
-          <h2>Online Donation</h2>
-          <p>Choose an amount and continue securely through Razorpay.</p>
+          <h2>{t("give.online")}</h2>
+          <p>{t("give.onlineText")}</p>
           <div className="give-amounts">
             {AMOUNTS.map((value) => <button className={amount === value && !customAmount ? "selected" : ""} key={value} type="button" onClick={() => { setAmount(value); setCustomAmount(""); }}>{`INR ${value.toLocaleString("en-IN")}`}</button>)}
           </div>
-          <label className="give-custom-label">Custom amount (INR)<input min="100" max="100000" step="1" inputMode="numeric" type="number" value={customAmount} onChange={(event) => setCustomAmount(event.target.value)} placeholder="1000" /></label>
-          <button className="give-button" type="button" onClick={startPayment} disabled={status === "loading"}>{status === "loading" ? "Opening checkout..." : "Continue to payment"}</button>
+          <label className="give-custom-label">{t("give.custom")}<input min="100" max="100000" step="1" inputMode="numeric" type="number" value={customAmount} onChange={(event) => setCustomAmount(event.target.value)} placeholder="1000" /></label>
+          <button className="give-button" type="button" onClick={startPayment} disabled={status === "loading"}>{status === "loading" ? t("give.opening") : t("give.payment")}</button>
           {status === "error" && <p className="give-error" role="alert">{message}</p>}
         </article>
         <article className="give-method">
           <span className="give-method-number">02</span>
-          <h2>Donate via UPI</h2>
-          {UPI_QR_URL ? <img className="give-qr" src={UPI_QR_URL} alt="UPI donation QR code" /> : <div className="give-placeholder">QR code to be added</div>}
-          <p>{UPI_INSTRUCTIONS}</p>
+          <h2>{t("give.upi")}</h2>
+          {UPI_QR_URL ? <img className="give-qr" src={UPI_QR_URL} alt="UPI donation QR code" /> : <div className="give-placeholder">{t("give.qrPlaceholder")}</div>}
+          <p>{UPI_ID ? UPI_INSTRUCTIONS : t("give.qrText")}</p>
           <div className="give-detail"><strong>{UPI_DISPLAY_NAME}</strong>{UPI_ID ? <span>{UPI_ID}</span> : <span>UPI details to be added</span>}</div>
         </article>
         <article className="give-method">
           <span className="give-method-number">03</span>
-          <h2>Donate Physically</h2>
-          <p>{PHYSICAL_DETAILS}</p>
-          <div className="give-placeholder give-physical">Bank transfer, cheque, cash, location, and contact details can be added here.</div>
+          <h2>{t("give.physical")}</h2>
+          <p>{PHYSICAL_DETAILS || t("give.physicalText")}</p>
+          <div className="give-placeholder give-physical">{t("give.physicalPlaceholder")}</div>
         </article>
       </section>
-      {status === "success" && <section className="give-success" aria-live="polite"><h2>Thank you for supporting Arise Association.</h2><p>Your payment has been verified.</p><strong>Payment reference: {paymentId}</strong></section>}
+      {status === "success" && <section className="give-success" aria-live="polite"><h2>{t("give.success")}</h2><p>{t("give.verified")}</p><strong>{t("give.reference", { id: paymentId })}</strong></section>}
     </main>
   );
 }
 
 function GiveStyles() {
   return <style>{`
-    .give-root { min-height: 100vh; padding: 112px 6vw 70px; background: #1F1B2E; color: #F7F3EC; font-family: 'Work Sans', sans-serif; }
+    .give-root { position: relative; min-height: 100vh; padding: 112px 6vw 70px; background: #1F1B2E; color: #F7F3EC; font-family: 'Work Sans', sans-serif; }
+    .give-language { position: absolute; top: 24px; right: 6vw; }
     .give-intro { max-width: 720px; margin: 0 auto 58px; text-align: center; }
     .give-eyebrow, .give-method-number { color: #E3A857; font-size: 12px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
     .give-intro h1 { margin: 10px 0 14px; font: 500 58px/1 'Fraunces', serif; }

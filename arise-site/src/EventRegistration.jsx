@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import LanguageSelector from "./LanguageSelector";
+import { useI18n } from "./i18n";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
+const ROLES = ["Registration", "Ushers", "Parking", "Security", "Hospitality", "Prayers & Counselling", "Production", "Media", "Stage", "Medical", "Logistics", "Leadership"];
 
 const EMPTY_FORM = {
   firstName: "",
@@ -10,19 +13,33 @@ const EMPTY_FORM = {
   area: "",
   city: "",
   consentConfirmed: false,
+  volunteerInterest: false,
+  ageGroup: "",
+  gender: "",
+  churchName: "",
+  pastorName: "",
+  churchLocation: "",
+  volunteerRole: "",
 };
 
-function validate(form) {
+function validate(form, t) {
   const errors = {};
-  if (!form.firstName.trim()) errors.firstName = "First name is required.";
-  if (!form.lastName.trim()) errors.lastName = "Last name is required.";
-  if (!form.mobileNumber.trim()) errors.mobileNumber = "Mobile number is required.";
-  else if (!/^[0-9+()\-\s]{7,20}$/.test(form.mobileNumber.trim())) errors.mobileNumber = "Enter a valid mobile number.";
-  if (!form.email.trim()) errors.email = "Email address is required.";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = "Enter a valid email address.";
-  if (!form.area.trim()) errors.area = "Area is required.";
-  if (!form.city.trim()) errors.city = "City is required.";
-  if (!form.consentConfirmed) errors.consentConfirmed = "You must confirm that registration is voluntary.";
+  if (!form.firstName.trim()) errors.firstName = t("event.required", { field: t("event.firstName") });
+  if (!form.lastName.trim()) errors.lastName = t("event.required", { field: t("event.lastName") });
+  if (!form.mobileNumber.trim()) errors.mobileNumber = t("event.required", { field: t("event.mobile") });
+  else if (!/^[0-9+()\-\s]{7,20}$/.test(form.mobileNumber.trim())) errors.mobileNumber = t("event.invalidMobile");
+  if (!form.email.trim()) errors.email = t("event.required", { field: t("event.email") });
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = t("event.invalidEmail");
+  if (!form.area.trim()) errors.area = t("event.required", { field: t("event.area") });
+  if (!form.city.trim()) errors.city = t("event.required", { field: t("event.city") });
+  if (!form.consentConfirmed) errors.consentConfirmed = t("event.consentError");
+  if (form.volunteerInterest) {
+    if (!form.ageGroup) errors.ageGroup = t("event.selectAge");
+    if (!form.churchName.trim()) errors.churchName = t("event.required", { field: t("event.church") });
+    if (!form.pastorName.trim()) errors.pastorName = t("event.required", { field: t("event.pastor") });
+    if (!form.churchLocation.trim()) errors.churchLocation = t("event.required", { field: t("event.churchLocation") });
+    if (!form.volunteerRole) errors.volunteerRole = t("event.selectVolunteerRole");
+  }
   return errors;
 }
 
@@ -37,16 +54,18 @@ function Field({ label, required, error, children }) {
 }
 
 export default function EventRegistration() {
+  const { t } = useI18n();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [registrationId, setRegistrationId] = useState("");
+  const [volunteerRegistrationId, setVolunteerRegistrationId] = useState("");
   const [serverMessage, setServerMessage] = useState("");
   const submittingRef = useRef(false);
 
   useEffect(() => {
-    document.title = "Event Registration | Arise Association";
-  }, []);
+    document.title = `${t("event.title")} | ${t("brand")}`;
+  }, [t]);
 
   const update = (key) => (event) => {
     const value = key === "consentConfirmed" ? event.target.checked : event.target.value;
@@ -56,7 +75,7 @@ export default function EventRegistration() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (submittingRef.current || status === "submitting") return;
-    const fieldErrors = validate(form);
+    const fieldErrors = validate(form, t);
     setErrors(fieldErrors);
     if (Object.keys(fieldErrors).length > 0) return;
 
@@ -72,11 +91,12 @@ export default function EventRegistration() {
       const data = await response.json();
       if (!response.ok) {
         if (data.errors) setErrors(data.errors);
-        setServerMessage(data.error || "Something went wrong. Please check the form.");
+        setServerMessage(data.error || t("event.genericError"));
         setStatus("error");
         return;
       }
       setRegistrationId(data.registrationId);
+      setVolunteerRegistrationId(data.volunteerRegistrationId || "");
       setStatus("success");
       setForm(EMPTY_FORM);
     } catch {
@@ -90,41 +110,61 @@ export default function EventRegistration() {
   return (
     <div className="er-root">
       <EventRegistrationStyles />
+      <div className="er-language"><LanguageSelector /></div>
       {status === "success" ? (
         <section className="er-success" aria-live="polite">
           <span className="er-eyebrow">Arise Conference 2026</span>
-          <h1>Registration Successful</h1>
-          <p>Thank you for registering for the event.</p>
-          <div className="er-id-label">Your Event Registration ID</div>
+          <h1>{t("event.successTitle")}</h1>
+          <p>{t("event.successText")}</p>
+          <div className="er-id-label">{t("event.idLabel")}</div>
           <div className="er-id">{registrationId}</div>
-          <p className="er-note">Please save this ID. You may need it when checking in at the event.</p>
-          <button className="er-button" type="button" onClick={() => setStatus("idle")}>Register another person</button>
+          {volunteerRegistrationId && <><div className="er-id-label">{t("event.volunteerIdLabel")}</div><div className="er-id">{volunteerRegistrationId}</div></>}
+          <p className="er-note">{t("event.note")}</p>
+          <button className="er-button" type="button" onClick={() => setStatus("idle")}>{t("event.another")}</button>
         </section>
       ) : (
         <form className="er-form" onSubmit={handleSubmit} noValidate>
           <span className="er-eyebrow">Arise Conference 2026</span>
-          <h1>Event registration</h1>
-          <p className="er-subtitle">Register to attend the event. Fields marked * are required.</p>
+          <h1>{t("event.title")}</h1>
+          <p className="er-subtitle">{t("event.subtitle")}</p>
           <div className="er-row">
-            <Field label="First name" required error={errors.firstName}><input value={form.firstName} onChange={update("firstName")} type="text" /></Field>
-            <Field label="Last name" required error={errors.lastName}><input value={form.lastName} onChange={update("lastName")} type="text" /></Field>
+            <Field label={t("event.firstName")} required error={errors.firstName}><input value={form.firstName} onChange={update("firstName")} type="text" /></Field>
+            <Field label={t("event.lastName")} required error={errors.lastName}><input value={form.lastName} onChange={update("lastName")} type="text" /></Field>
           </div>
           <div className="er-row">
-            <Field label="Mobile number" required error={errors.mobileNumber}><input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" /></Field>
-            <Field label="Email address" required error={errors.email}><input value={form.email} onChange={update("email")} type="email" /></Field>
+            <Field label={t("event.mobile")} required error={errors.mobileNumber}><input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" /></Field>
+            <Field label={t("event.email")} required error={errors.email}><input value={form.email} onChange={update("email")} type="email" /></Field>
           </div>
           <div className="er-row">
-            <Field label="Area" required error={errors.area}><input value={form.area} onChange={update("area")} type="text" /></Field>
-            <Field label="City" required error={errors.city}><input value={form.city} onChange={update("city")} type="text" /></Field>
+            <Field label={t("event.area")} required error={errors.area}><input value={form.area} onChange={update("area")} type="text" /></Field>
+            <Field label={t("event.city")} required error={errors.city}><input value={form.city} onChange={update("city")} type="text" /></Field>
           </div>
+          <fieldset className="er-volunteer-choice">
+            <legend>{t("event.volunteerQuestion")}</legend>
+            <label><input name="volunteerInterest" type="radio" checked={!form.volunteerInterest} onChange={() => setForm((current) => ({ ...current, volunteerInterest: false }))} /> {t("event.participant")}</label>
+            <label><input name="volunteerInterest" type="radio" checked={form.volunteerInterest} onChange={() => setForm((current) => ({ ...current, volunteerInterest: true }))} /> {t("event.volunteer")}</label>
+            {form.volunteerInterest && <p>{t("event.volunteerNote")}</p>}
+          </fieldset>
+          {form.volunteerInterest && <>
+            <div className="er-row">
+              <Field label={t("event.age")} required error={errors.ageGroup}><select value={form.ageGroup} onChange={update("ageGroup")}><option value="">{t("event.select")}</option><option value="15-21">{t("volunteer.age15")}</option><option value="21-30">{t("volunteer.age21")}</option><option value="30 Above">{t("volunteer.age30")}</option></select></Field>
+              <Field label={t("event.gender")} error={errors.gender}><select value={form.gender} onChange={update("gender")}><option value="">{t("event.preferNot")}</option><option value="Male">{t("volunteer.male")}</option><option value="Female">{t("volunteer.female")}</option><option value="Third Choice">{t("volunteer.third")}</option></select></Field>
+            </div>
+            <div className="er-row">
+              <Field label={t("event.church")} required error={errors.churchName}><input value={form.churchName} onChange={update("churchName")} type="text" /></Field>
+              <Field label={t("event.pastor")} required error={errors.pastorName}><input value={form.pastorName} onChange={update("pastorName")} type="text" /></Field>
+            </div>
+            <Field label={t("event.churchLocation")} required error={errors.churchLocation}><input value={form.churchLocation} onChange={update("churchLocation")} type="text" /></Field>
+            <Field label={t("event.role")} required error={errors.volunteerRole}><select value={form.volunteerRole} onChange={update("volunteerRole")}><option value="">{t("event.selectRole")}</option>{ROLES.map((role) => <option key={role} value={role}>{t(`volunteer.roles.${role}`)}</option>)}</select></Field>
+          </>}
           <label className={`er-consent ${errors.consentConfirmed ? "er-consent-error" : ""}`}>
             <input checked={form.consentConfirmed} onChange={update("consentConfirmed")} type="checkbox" />
-            <span>I confirm that I am registering voluntarily and have not been forced or coerced.</span>
+            <span>{t("event.consent")}</span>
           </label>
           {errors.consentConfirmed && <span className="er-error">{errors.consentConfirmed}</span>}
           {serverMessage && <p className="er-server-message">{serverMessage}</p>}
           <button className="er-button er-submit" type="submit" disabled={status === "submitting"}>
-            {status === "submitting" ? "Registering..." : "Register for the event"}
+            {status === "submitting" ? t("event.submitting") : t("event.submit")}
           </button>
         </form>
       )}
@@ -135,7 +175,8 @@ export default function EventRegistration() {
 function EventRegistrationStyles() {
   return (
     <style>{`
-      .er-root { --er-ink: #1F1B2E; --er-gold: #E3A857; --er-cream: #F7F3EC; --er-lav: #A79FBF; --er-panel: #2A2440; --er-danger: #E0645A; min-height: 100vh; padding: 60px 6vw; display: flex; justify-content: center; align-items: flex-start; background: var(--er-ink); color: var(--er-cream); font-family: 'Work Sans', sans-serif; }
+      .er-root { --er-ink: #1F1B2E; --er-gold: #E3A857; --er-cream: #F7F3EC; --er-lav: #A79FBF; --er-panel: #2A2440; --er-danger: #E0645A; position: relative; min-height: 100vh; padding: 60px 6vw; display: flex; justify-content: center; align-items: flex-start; background: var(--er-ink); color: var(--er-cream); font-family: 'Work Sans', sans-serif; }
+      .er-language { position: absolute; top: 24px; right: 6vw; }
       .er-form, .er-success { width: 100%; max-width: 640px; margin: 20px 0; padding: 40px; background: var(--er-panel); border: 1px solid rgba(227,168,87,0.3); border-radius: 6px; }
       .er-success { max-width: 520px; text-align: center; }
       .er-eyebrow { color: var(--er-gold); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }

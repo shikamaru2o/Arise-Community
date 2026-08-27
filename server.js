@@ -167,6 +167,13 @@ function validateEventRegistration(body) {
     area: cleanString(body.area),
     city: cleanString(body.city),
     consentConfirmed: body.consentConfirmed === true,
+    volunteerInterest: body.volunteerInterest === true,
+    ageGroup: cleanString(body.ageGroup),
+    gender: cleanString(body.gender),
+    churchName: cleanString(body.churchName),
+    pastorName: cleanString(body.pastorName),
+    churchLocation: cleanString(body.churchLocation),
+    volunteerRole: cleanString(body.volunteerRole),
   };
 
   if (!data.firstName) errors.firstName = 'First name is required.';
@@ -182,6 +189,14 @@ function validateEventRegistration(body) {
   if (!data.city) errors.city = 'City is required.';
   else if (tooLong('churchLocation', data.city)) errors.city = `City must be at most ${MAX_LENGTHS.churchLocation} characters.`;
   if (!data.consentConfirmed) errors.consentConfirmed = 'You must confirm that registration is voluntary.';
+  if (data.volunteerInterest) {
+    if (!AGE_GROUPS.includes(data.ageGroup)) errors.ageGroup = 'Select an age group.';
+    if (data.gender && !GENDERS.includes(data.gender)) errors.gender = 'Select a valid gender.';
+    if (!data.churchName) errors.churchName = 'Church name is required.';
+    if (!data.pastorName) errors.pastorName = "Pastor's name is required.";
+    if (!data.churchLocation) errors.churchLocation = 'Church location is required.';
+    if (!ROLES.includes(data.volunteerRole)) errors.volunteerRole = 'Select a preferred volunteer role.';
+  }
   return { errors, data };
 }
 
@@ -439,8 +454,21 @@ app.post('/api/event-registrations', submitLimiter, async (req, res) => {
       [registrationId, data.firstName, data.lastName, data.mobileNumber, data.email,
         data.area, data.city, 1, REGISTRATION_TYPES.EVENT.label]
     );
+    let volunteerRegistrationId = null;
+    if (data.volunteerInterest) {
+      volunteerRegistrationId = await createRegistrationId(connection, REGISTRATION_TYPES.VOLUNTEER);
+      await connection.query(
+        `INSERT INTO volunteers
+          (registration_id, first_name, last_name, mobile_number, email, age_group, gender,
+           church_name, pastor_name, church_location, volunteer_role)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [volunteerRegistrationId, data.firstName, data.lastName, data.mobileNumber, data.email,
+          data.ageGroup, data.gender || null, data.churchName, data.pastorName,
+          data.churchLocation, data.volunteerRole]
+      );
+    }
     await connection.commit();
-    return res.status(201).json({ success: true, registrationId });
+    return res.status(201).json({ success: true, registrationId, volunteerRegistrationId });
   } catch (err) {
     if (connection) await connection.rollback();
     console.error('Event registration failed:', err.message);

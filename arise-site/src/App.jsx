@@ -4,8 +4,11 @@ import ArisePage from "./AriseCommunitySite";
 import VolunteerForm from "./VolunteerForm";
 import EventRegistration from "./EventRegistration";
 import GivePage from "./GivePage";
+import { I18nProvider } from "./i18n";
+import { useI18n } from "./i18n";
 
 function NotFoundPage() {
+  const { t } = useI18n();
   return (
     <div
       style={{
@@ -23,10 +26,10 @@ function NotFoundPage() {
       }}
     >
       <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, fontSize: 48, margin: 0 }}>
-        Page not found
+        {t("common.notFound")}
       </h1>
       <p style={{ color: "#A79FBF", margin: 0, maxWidth: 420, lineHeight: 1.7 }}>
-        The page you're looking for doesn't exist or has moved.
+        {t("common.notFoundText")}
       </p>
       <Link
         to="/"
@@ -44,7 +47,7 @@ function NotFoundPage() {
           border: "1px solid #E3A857",
         }}
       >
-        Back to home
+        {t("common.backHome")}
       </Link>
     </div>
   );
@@ -52,15 +55,17 @@ function NotFoundPage() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<ArisePage />} />
-        <Route path="/volunteer" element={<VolunteerForm />} />
-        <Route path="/register" element={<EventRegistration />} />
-        <Route path="/give" element={<GivePage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+    <I18nProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<ArisePage />} />
+          <Route path="/volunteer" element={<VolunteerForm />} />
+          <Route path="/register" element={<EventRegistration />} />
+          <Route path="/give" element={<GivePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
+    </I18nProvider>
   );
 }
 
