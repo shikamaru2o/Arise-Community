@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import ArisePage from "./AriseCommunitySite";
 import VolunteerForm from "./VolunteerForm";
+import EventRegistration from "./EventRegistration";
+import GivePage from "./GivePage";
 
 function NotFoundPage() {
   return (
@@ -54,6 +56,8 @@ function App() {
       <Routes>
         <Route path="/" element={<ArisePage />} />
         <Route path="/volunteer" element={<VolunteerForm />} />
+        <Route path="/register" element={<EventRegistration />} />
+        <Route path="/give" element={<GivePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

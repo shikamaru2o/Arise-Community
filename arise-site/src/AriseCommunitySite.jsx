@@ -17,9 +17,22 @@ const IMG = {
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
-  { label: "Join the team", href: "/volunteer" },
   { label: "Location", href: "#location" },
   { label: "Contact", href: "#contact" },
+];
+
+const MOBILE_LINKS = [
+  ...NAV_LINKS,
+  { label: "Join the team", href: "/volunteer" },
+  { label: "Register", href: "/register" },
+  { label: "Give Now", href: "/give" },
+];
+
+const FOOTER_LINKS = [
+  ...NAV_LINKS,
+  { label: "Join the team", href: "/volunteer" },
+  { label: "Register", href: "/register" },
+  { label: "Give Now", href: "/give" },
 ];
 
 const SPEAKERS = [
@@ -161,7 +174,8 @@ export default function ArisePage() {
         .arise-nav-logo { display: flex; align-items: center; gap: 10px; }
         .arise-nav-logo img { height: 38px; width: auto; border-radius: 4px; }
         .arise-nav-logo span { font-family: 'Fraunces', serif; font-size: 18px; letter-spacing: 0.03em; }
-        .arise-nav-links { display: flex; gap: 34px; }
+        .arise-nav-groups { display: flex; align-items: center; gap: 24px; }
+        .arise-nav-links { display: flex; gap: 30px; }
         .arise-nav-links a {
           color: var(--cream); text-decoration: none; font-size: 14px; font-weight: 400;
           position: relative; padding-bottom: 4px; opacity: 0.85;
@@ -172,6 +186,11 @@ export default function ArisePage() {
           background: var(--gold); transition: width 0.25s ease;
         }
         .arise-nav-links a:hover::after { width: 100%; }
+        .arise-nav-actions { display: flex; align-items: center; gap: 10px; padding-left: 24px; border-left: 1px solid rgba(227,168,87,0.28); }
+        .arise-nav-action { color: var(--ink); background: var(--gold); border: 1px solid var(--gold); border-radius: 999px; padding: 10px 17px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-decoration: none; white-space: nowrap; transition: background 0.25s ease, color 0.25s ease, transform 0.15s ease; }
+        .arise-nav-action:hover { background: transparent; color: var(--gold); transform: translateY(-1px); }
+        .arise-nav-action.secondary { background: transparent; color: var(--gold); }
+        .arise-nav-action.secondary:hover { background: var(--gold); color: var(--ink); }
         .arise-nav-burger { display: none; background: none; border: none; color: var(--cream); font-size: 22px; cursor: pointer; }
         .arise-mobile-menu {
           display: none; flex-direction: column; gap: 18px; padding: 22px 6vw 26px;
@@ -407,7 +426,7 @@ export default function ArisePage() {
         }
 
         @media (max-width: 820px) {
-          .arise-nav-links { display: none; }
+          .arise-nav-groups { display: none; }
           .arise-nav-burger { display: block; }
           .arise-grid.three { grid-template-columns: 1fr 1fr; }
           .arise-location { grid-template-columns: 1fr; }
@@ -433,10 +452,16 @@ export default function ArisePage() {
           <img src={IMG.logo} alt="Arise Association logo" />
           <span>Arise Association</span>
         </div>
-        <div className="arise-nav-links">
-          {NAV_LINKS.map((l) => (
-            <a key={l.label} href={l.href}>{l.label}</a>
-          ))}
+        <div className="arise-nav-groups">
+          <div className="arise-nav-links">
+            {NAV_LINKS.map((l) => (
+              <a key={l.label} href={l.href}>{l.label}</a>
+            ))}
+          </div>
+          <div className="arise-nav-actions">
+            <a className="arise-nav-action" href="/volunteer">Join the Team</a>
+            <a className="arise-nav-action secondary" href="/give">Give Now</a>
+          </div>
         </div>
         <button
           className="arise-nav-burger"
@@ -448,7 +473,7 @@ export default function ArisePage() {
       </nav>
       {menuOpen && (
         <div className="arise-mobile-menu">
-          {NAV_LINKS.map((l) => (
+          {MOBILE_LINKS.map((l) => (
             <a key={l.label} href={l.href} onClick={() => setMenuOpen(false)}>{l.label}</a>
           ))}
         </div>
@@ -483,7 +508,7 @@ export default function ArisePage() {
               <div className="value">December 11–13</div>
             </div>
           </div>
-          <a className="arise-btn" href="/volunteer">Register here</a>
+          <a className="arise-btn" href="/register">Register here</a>
         </div>
       </header>
 
@@ -500,7 +525,7 @@ export default function ArisePage() {
                 Watch a quick look at what to expect this December — worship, teaching,
                 and a room full of people believing for a new season together.
               </p>
-              <a className="arise-btn" href="/volunteer">Give Now</a>
+              <a className="arise-btn" href="/give">Give Now</a>
             </div>
           </div>
         </section>
@@ -631,7 +656,7 @@ export default function ArisePage() {
           <div>
             <h4>Menu</h4>
             <ul>
-              {NAV_LINKS.map((l) => (
+              {FOOTER_LINKS.map((l) => (
                 <li key={l.label}><a href={l.href}>{l.label}</a></li>
               ))}
             </ul>
