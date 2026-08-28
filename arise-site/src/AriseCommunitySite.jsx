@@ -584,7 +584,7 @@ export default function ArisePage() {
               <span className="arise-eyebrow">{t("join.eyebrow")}</span>
               <h2 className="arise-display">{t("join.title")}</h2>
               <p>{t("join.description")}</p>
-              <a className="arise-btn" href="/give">{t("nav.give")}</a>
+              <a className="arise-btn" href="/volunteer">{t("nav.join")}</a>
             </div>
           </div>
         </section>
