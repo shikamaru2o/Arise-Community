@@ -7,8 +7,8 @@ import LanguageSelector from "./LanguageSelector";
 const HERO_VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL || "/videos/arise-hero.mp4";
 const PROMO_VIDEO_URL = import.meta.env.VITE_PROMO_VIDEO_URL || "/videos/arise-promo.mp4";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "contact@example.com";
-const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || "https://instagram.com/REPLACE_WITH_ARISE_INSTAGRAM";
-const YOUTUBE_URL = import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/REPLACE_WITH_ARISE_YOUTUBE";
+const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || "https://www.instagram.com/arisecommunityindia?igsi=MWg1Z3U3OWVkdGQ5Zw==";
+const YOUTUBE_URL = import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/@arisecommunityindia?si=I60nStg4PXCN30Ut";
 
 const IMG = {
   logo: "/images/arise-logo.png",
