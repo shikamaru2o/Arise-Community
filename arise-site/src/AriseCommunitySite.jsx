@@ -12,11 +12,11 @@ const YOUTUBE_URL = import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/@ar
 
 const IMG = {
   logo: "/images/arise-logo-new-1.png",
-  patta: "/images/speakers/patta.webp",
-  bonny: "/images/speakers/bonny.webp",
-  joseph: "/images/artists/joseph.webp",
-  roney: "/images/artists/roney.webp",
-  mark: "/images/artists/mark.webp",
+  patta: "/images/speakers/patta.png",
+  bonny: "/images/speakers/bonny.png",
+  joseph: "/images/artists/joseph.png",
+  roney: "/images/artists/roney.png",
+  mark: "/images/artists/mark.png",
 };
 
 const NAV_LINKS = [
