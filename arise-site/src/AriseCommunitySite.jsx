@@ -11,7 +11,7 @@ const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || "https://instagram.c
 const YOUTUBE_URL = import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/REPLACE_WITH_ARISE_YOUTUBE";
 
 const IMG = {
-  logo: "/images/arise-logo.svg",
+  logo: "/images/arise-logo.png",
   patta: "/images/speakers/patta.webp",
   bonny: "/images/speakers/bonny.webp",
   joseph: "/images/artists/joseph.webp",
@@ -531,7 +531,6 @@ export default function ArisePage() {
       <nav className={`arise-nav ${scrolled ? "scrolled" : ""}`} id="home">
         <div className="arise-nav-logo">
           <img src={IMG.logo} alt={`${t("brand")} logo`} />
-          <span>{t("brand")}</span>
         </div>
         <div className="arise-nav-groups">
           <div className="arise-nav-links">
@@ -715,7 +714,6 @@ export default function ArisePage() {
           <div>
             <div className="arise-footer-logo">
               <img src={IMG.logo} alt={`${t("brand")} logo`} />
-              <span>{t("brand")}</span>
             </div>
             <p style={{ color: "var(--lav)", fontSize: 14, lineHeight: 1.7, maxWidth: 260 }}>{t("footer.description")}</p>
           </div>
