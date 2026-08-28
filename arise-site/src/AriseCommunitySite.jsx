@@ -11,7 +11,7 @@ const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || "https://www.instagr
 const YOUTUBE_URL = import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/@arisecommunityindia?si=I60nStg4PXCN30Ut";
 
 const IMG = {
-  logo: "/images/arise-logo-new.png",
+  logo: "/images/arise-logo-new-1.png",
   patta: "/images/speakers/patta.webp",
   bonny: "/images/speakers/bonny.webp",
   joseph: "/images/artists/joseph.webp",
