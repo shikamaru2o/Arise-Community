@@ -51,21 +51,6 @@ const ARTISTS = [
   { name: "Mark Tribhuvan", img: IMG.mark },
 ];
 
-function Flame() {
-  return (
-    <svg width="18" height="24" viewBox="0 0 18 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 0C9 0 3 6.5 3 12.5C3 17.5 6 21 9 21C12 21 15 17.5 15 12.5C15 11 14.3 9.2 13.3 7.7C13.3 9.5 12.3 11 11 11C11.8 8.8 10.6 4.8 9 0Z"
-        fill="#E3A857"
-      />
-      <path
-        d="M9 13C9 13 7.3 15.2 7.3 17C7.3 18.7 8 20 9 20C10 20 10.7 18.7 10.7 17C10.7 15.9 10 14.3 9 13Z"
-        fill="#1F1B2E"
-      />
-    </svg>
-  );
-}
-
 function HeroBackgroundVideo({ src }) {
   const [errored, setErrored] = useState(false);
   if (!src || errored) return null;
@@ -569,10 +554,6 @@ export default function ArisePage() {
           <div className="arise-hero-overlay" />
         </div>
         <div className="arise-hero-content">
-          <div className="arise-hero-chip">
-            <Flame />
-            {t("hero.chip")}
-          </div>
           <h1 className="arise-display">
             {t("hero.titleBefore")} <em>{t("hero.titleEmphasis")}</em>
           </h1>
