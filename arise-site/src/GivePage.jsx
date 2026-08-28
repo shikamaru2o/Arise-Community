@@ -6,9 +6,9 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || "";
 const UPI_ID = import.meta.env.VITE_UPI_ID || "";
 const UPI_QR_URL = import.meta.env.VITE_UPI_QR_URL || "";
-const UPI_DISPLAY_NAME = import.meta.env.VITE_UPI_DISPLAY_NAME || "Arise Association";
-const UPI_INSTRUCTIONS = import.meta.env.VITE_UPI_INSTRUCTIONS || "Scan the QR code using your preferred UPI app.";
-const PHYSICAL_DETAILS = import.meta.env.VITE_PHYSICAL_DONATION_DETAILS || "Physical donation details will be added soon.";
+const UPI_DISPLAY_NAME = import.meta.env.VITE_UPI_DISPLAY_NAME || "";
+const UPI_INSTRUCTIONS = import.meta.env.VITE_UPI_INSTRUCTIONS || "";
+const PHYSICAL_DETAILS = import.meta.env.VITE_PHYSICAL_DONATION_DETAILS || "";
 const AMOUNTS = [500, 1000, 2500, 5000];
 
 function loadRazorpay() {
@@ -67,8 +67,8 @@ export default function GivePage() {
         key: order.keyId,
         amount: order.amount,
         currency: order.currency,
-        name: "Arise Association",
-        description: "Donation to Arise Association",
+        name: t("brand"),
+        description: t("give.checkoutDescription"),
         order_id: order.orderId,
         handler: async (response) => {
           const verifyResponse = await fetch(`${API_BASE}/donations/verify`, {
@@ -103,11 +103,11 @@ export default function GivePage() {
       <GiveStyles />
       <div className="give-language"><LanguageSelector /></div>
       <section className="give-intro">
-        <span className="give-eyebrow">Arise Association</span>
+        <span className="give-eyebrow">{t("give.eyebrow")}</span>
         <h1>{t("give.title")}</h1>
         <p>{t("give.intro")}</p>
       </section>
-      <section className="give-methods" aria-label="Donation methods">
+      <section className="give-methods" aria-label={t("give.methods")}>
         <article className="give-method">
           <span className="give-method-number">01</span>
           <h2>{t("give.online")}</h2>
@@ -122,9 +122,9 @@ export default function GivePage() {
         <article className="give-method">
           <span className="give-method-number">02</span>
           <h2>{t("give.upi")}</h2>
-          {UPI_QR_URL ? <img className="give-qr" src={UPI_QR_URL} alt="UPI donation QR code" /> : <div className="give-placeholder">{t("give.qrPlaceholder")}</div>}
-          <p>{UPI_ID ? UPI_INSTRUCTIONS : t("give.qrText")}</p>
-          <div className="give-detail"><strong>{UPI_DISPLAY_NAME}</strong>{UPI_ID ? <span>{UPI_ID}</span> : <span>UPI details to be added</span>}</div>
+          {UPI_QR_URL ? <img className="give-qr" src={UPI_QR_URL} alt={t("give.qrAlt")} /> : <div className="give-placeholder">{t("give.qrPlaceholder")}</div>}
+          <p>{UPI_ID ? (UPI_INSTRUCTIONS || t("give.qrText")) : t("give.qrText")}</p>
+          <div className="give-detail"><strong>{UPI_DISPLAY_NAME || t("brand")}</strong>{UPI_ID ? <span>{UPI_ID}</span> : <span>{t("give.upiDetails")}</span>}</div>
         </article>
         <article className="give-method">
           <span className="give-method-number">03</span>

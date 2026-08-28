@@ -3,7 +3,6 @@ import LanguageSelector from "./LanguageSelector";
 import { useI18n } from "./i18n";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
-const ROLES = ["Registration", "Ushers", "Parking", "Security", "Hospitality", "Prayers & Counselling", "Production", "Media", "Stage", "Medical", "Logistics", "Leadership"];
 
 const EMPTY_FORM = {
   firstName: "",
@@ -13,13 +12,6 @@ const EMPTY_FORM = {
   area: "",
   city: "",
   consentConfirmed: false,
-  volunteerInterest: false,
-  ageGroup: "",
-  gender: "",
-  churchName: "",
-  pastorName: "",
-  churchLocation: "",
-  volunteerRole: "",
 };
 
 function validate(form, t) {
@@ -33,13 +25,6 @@ function validate(form, t) {
   if (!form.area.trim()) errors.area = t("event.required", { field: t("event.area") });
   if (!form.city.trim()) errors.city = t("event.required", { field: t("event.city") });
   if (!form.consentConfirmed) errors.consentConfirmed = t("event.consentError");
-  if (form.volunteerInterest) {
-    if (!form.ageGroup) errors.ageGroup = t("event.selectAge");
-    if (!form.churchName.trim()) errors.churchName = t("event.required", { field: t("event.church") });
-    if (!form.pastorName.trim()) errors.pastorName = t("event.required", { field: t("event.pastor") });
-    if (!form.churchLocation.trim()) errors.churchLocation = t("event.required", { field: t("event.churchLocation") });
-    if (!form.volunteerRole) errors.volunteerRole = t("event.selectVolunteerRole");
-  }
   return errors;
 }
 
@@ -59,7 +44,6 @@ export default function EventRegistration() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [registrationId, setRegistrationId] = useState("");
-  const [volunteerRegistrationId, setVolunteerRegistrationId] = useState("");
   const [serverMessage, setServerMessage] = useState("");
   const submittingRef = useRef(false);
 
@@ -96,11 +80,10 @@ export default function EventRegistration() {
         return;
       }
       setRegistrationId(data.registrationId);
-      setVolunteerRegistrationId(data.volunteerRegistrationId || "");
       setStatus("success");
       setForm(EMPTY_FORM);
     } catch {
-      setServerMessage("Could not reach the server. Check your connection and try again.");
+      setServerMessage(t("event.serverError"));
       setStatus("error");
     } finally {
       submittingRef.current = false;
@@ -113,18 +96,17 @@ export default function EventRegistration() {
       <div className="er-language"><LanguageSelector /></div>
       {status === "success" ? (
         <section className="er-success" aria-live="polite">
-          <span className="er-eyebrow">Arise Conference 2026</span>
+          <span className="er-eyebrow">{t("event.eyebrow")}</span>
           <h1>{t("event.successTitle")}</h1>
           <p>{t("event.successText")}</p>
           <div className="er-id-label">{t("event.idLabel")}</div>
           <div className="er-id">{registrationId}</div>
-          {volunteerRegistrationId && <><div className="er-id-label">{t("event.volunteerIdLabel")}</div><div className="er-id">{volunteerRegistrationId}</div></>}
           <p className="er-note">{t("event.note")}</p>
           <button className="er-button" type="button" onClick={() => setStatus("idle")}>{t("event.another")}</button>
         </section>
       ) : (
         <form className="er-form" onSubmit={handleSubmit} noValidate>
-          <span className="er-eyebrow">Arise Conference 2026</span>
+          <span className="er-eyebrow">{t("event.eyebrow")}</span>
           <h1>{t("event.title")}</h1>
           <p className="er-subtitle">{t("event.subtitle")}</p>
           <div className="er-row">
@@ -132,31 +114,13 @@ export default function EventRegistration() {
             <Field label={t("event.lastName")} required error={errors.lastName}><input value={form.lastName} onChange={update("lastName")} type="text" /></Field>
           </div>
           <div className="er-row">
-            <Field label={t("event.mobile")} required error={errors.mobileNumber}><input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" /></Field>
-            <Field label={t("event.email")} required error={errors.email}><input value={form.email} onChange={update("email")} type="email" /></Field>
+            <Field label={t("event.mobile")} required error={errors.mobileNumber}><input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" autoComplete="tel" /></Field>
+            <Field label={t("event.email")} required error={errors.email}><input value={form.email} onChange={update("email")} type="email" autoComplete="email" /></Field>
           </div>
           <div className="er-row">
             <Field label={t("event.area")} required error={errors.area}><input value={form.area} onChange={update("area")} type="text" /></Field>
             <Field label={t("event.city")} required error={errors.city}><input value={form.city} onChange={update("city")} type="text" /></Field>
           </div>
-          <fieldset className="er-volunteer-choice">
-            <legend>{t("event.volunteerQuestion")}</legend>
-            <label><input name="volunteerInterest" type="radio" checked={!form.volunteerInterest} onChange={() => setForm((current) => ({ ...current, volunteerInterest: false }))} /> {t("event.participant")}</label>
-            <label><input name="volunteerInterest" type="radio" checked={form.volunteerInterest} onChange={() => setForm((current) => ({ ...current, volunteerInterest: true }))} /> {t("event.volunteer")}</label>
-            {form.volunteerInterest && <p>{t("event.volunteerNote")}</p>}
-          </fieldset>
-          {form.volunteerInterest && <>
-            <div className="er-row">
-              <Field label={t("event.age")} required error={errors.ageGroup}><select value={form.ageGroup} onChange={update("ageGroup")}><option value="">{t("event.select")}</option><option value="15-21">{t("volunteer.age15")}</option><option value="21-30">{t("volunteer.age21")}</option><option value="30 Above">{t("volunteer.age30")}</option></select></Field>
-              <Field label={t("event.gender")} error={errors.gender}><select value={form.gender} onChange={update("gender")}><option value="">{t("event.preferNot")}</option><option value="Male">{t("volunteer.male")}</option><option value="Female">{t("volunteer.female")}</option><option value="Third Choice">{t("volunteer.third")}</option></select></Field>
-            </div>
-            <div className="er-row">
-              <Field label={t("event.church")} required error={errors.churchName}><input value={form.churchName} onChange={update("churchName")} type="text" /></Field>
-              <Field label={t("event.pastor")} required error={errors.pastorName}><input value={form.pastorName} onChange={update("pastorName")} type="text" /></Field>
-            </div>
-            <Field label={t("event.churchLocation")} required error={errors.churchLocation}><input value={form.churchLocation} onChange={update("churchLocation")} type="text" /></Field>
-            <Field label={t("event.role")} required error={errors.volunteerRole}><select value={form.volunteerRole} onChange={update("volunteerRole")}><option value="">{t("event.selectRole")}</option>{ROLES.map((role) => <option key={role} value={role}>{t(`volunteer.roles.${role}`)}</option>)}</select></Field>
-          </>}
           <label className={`er-consent ${errors.consentConfirmed ? "er-consent-error" : ""}`}>
             <input checked={form.consentConfirmed} onChange={update("consentConfirmed")} type="checkbox" />
             <span>{t("event.consent")}</span>

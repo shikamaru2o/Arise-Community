@@ -5,7 +5,7 @@ import { useI18n } from "./i18n";
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 const AGE_GROUPS = ["15-21", "21-30", "30 Above"];
-const GENDERS = ["Male", "Female", "Third Choice"];
+const GENDERS = ["Male", "Female"];
 const ROLES = [
   "Registration", "Ushers", "Parking", "Security", "Hospitality",
   "Prayers & Counselling", "Production", "Media", "Stage",
@@ -33,13 +33,12 @@ function validate(form, t) {
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
     errors.email = t("volunteer.invalidEmail");
   }
-  if (form.mobileNumber && !/^[0-9+()\-\s]{7,20}$/.test(form.mobileNumber.trim())) {
+  if (!form.mobileNumber.trim()) errors.mobileNumber = t("volunteer.required", { field: t("volunteer.mobile") });
+  else if (!/^[0-9+()\-\s]{7,20}$/.test(form.mobileNumber.trim())) {
     errors.mobileNumber = t("volunteer.invalidMobile");
   }
   if (!form.ageGroup) errors.ageGroup = t("volunteer.selectAge");
   if (!form.churchName.trim()) errors.churchName = t("volunteer.required", { field: t("volunteer.church") });
-  if (!form.pastorName.trim()) errors.pastorName = t("volunteer.required", { field: t("volunteer.pastor") });
-  if (!form.churchLocation.trim()) errors.churchLocation = t("volunteer.required", { field: t("volunteer.churchLocation") });
   if (!form.volunteerRole) errors.volunteerRole = t("volunteer.selectVolunteerRole");
   return errors;
 }
@@ -140,8 +139,8 @@ export default function VolunteerForm() {
         </div>
 
         <div className="vf-row">
-          <Field label={t("volunteer.mobile")} error={errors.mobileNumber}>
-            <input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" placeholder="+91 98765 43210" />
+          <Field label={t("volunteer.mobile")} required error={errors.mobileNumber}>
+            <input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" autoComplete="tel" />
           </Field>
           <Field label={t("volunteer.email")} required error={errors.email}>
             <input value={form.email} onChange={update("email")} type="email" />
@@ -158,7 +157,7 @@ export default function VolunteerForm() {
           <Field label={t("volunteer.gender")} error={errors.gender}>
             <select value={form.gender} onChange={update("gender")}>
               <option value="">{t("volunteer.preferNot")}</option>
-              {GENDERS.map((g) => <option key={g} value={g}>{t(`volunteer.${g === "Male" ? "male" : g === "Female" ? "female" : "third"}`)}</option>)}
+              {GENDERS.map((g) => <option key={g} value={g}>{t(g === "Male" ? "volunteer.male" : "volunteer.female")}</option>)}
             </select>
           </Field>
         </div>
@@ -167,12 +166,12 @@ export default function VolunteerForm() {
           <Field label={t("volunteer.church")} required error={errors.churchName}>
             <input value={form.churchName} onChange={update("churchName")} type="text" />
           </Field>
-          <Field label={t("volunteer.pastor")} required error={errors.pastorName}>
+          <Field label={`${t("volunteer.pastor")} ${t("volunteer.optional")}`} error={errors.pastorName}>
             <input value={form.pastorName} onChange={update("pastorName")} type="text" />
           </Field>
         </div>
 
-        <Field label={t("volunteer.churchLocation")} required error={errors.churchLocation}>
+        <Field label={`${t("volunteer.churchLocation")} ${t("volunteer.optional")}`} error={errors.churchLocation}>
           <input value={form.churchLocation} onChange={update("churchLocation")} type="text" />
         </Field>
 

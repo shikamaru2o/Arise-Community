@@ -56,7 +56,7 @@ const MAX_LENGTHS = {
 };
 
 const AGE_GROUPS = ['15-21', '21-30', '30 Above'];
-const GENDERS = ['Male', 'Female', 'Third Choice'];
+const GENDERS = ['Male', 'Female'];
 const ROLES = [
   'Registration', 'Ushers', 'Parking', 'Security', 'Hospitality',
   'Prayers & Counselling', 'Production', 'Media', 'Stage',
@@ -132,19 +132,16 @@ function validateSignup(body) {
   if (!email) errors.email = 'Email address is required.';
   else if (!EMAIL_RE.test(email)) errors.email = 'Enter a valid email address.';
   else if (tooLong('email', email)) errors.email = `Email must be at most ${MAX_LENGTHS.email} characters.`;
-  if (mobileNumber) {
-    if (!MOBILE_RE.test(mobileNumber)) errors.mobileNumber = 'Enter a valid mobile number.';
-    else if (tooLong('mobileNumber', mobileNumber)) errors.mobileNumber = `Mobile number must be at most ${MAX_LENGTHS.mobileNumber} characters.`;
-  }
+  if (!mobileNumber) errors.mobileNumber = 'Mobile number is required.';
+  else if (!MOBILE_RE.test(mobileNumber)) errors.mobileNumber = 'Enter a valid mobile number.';
+  else if (tooLong('mobileNumber', mobileNumber)) errors.mobileNumber = `Mobile number must be at most ${MAX_LENGTHS.mobileNumber} characters.`;
   if (!ageGroup) errors.ageGroup = 'Select an age group.';
   else if (!AGE_GROUPS.includes(ageGroup)) errors.ageGroup = 'Select a valid age group.';
   if (gender && !GENDERS.includes(gender)) errors.gender = 'Select a valid gender.';
-  if (!churchName) errors.churchName = "Church name is required.";
+  if (!churchName) errors.churchName = 'Church name is required.';
   else if (tooLong('churchName', churchName)) errors.churchName = `Church name must be at most ${MAX_LENGTHS.churchName} characters.`;
-  if (!pastorName) errors.pastorName = "Pastor's name is required.";
-  else if (tooLong('pastorName', pastorName)) errors.pastorName = `Pastor's name must be at most ${MAX_LENGTHS.pastorName} characters.`;
-  if (!churchLocation) errors.churchLocation = 'Church location is required.';
-  else if (tooLong('churchLocation', churchLocation)) errors.churchLocation = `Church location must be at most ${MAX_LENGTHS.churchLocation} characters.`;
+  if (pastorName && tooLong('pastorName', pastorName)) errors.pastorName = `Pastor's name must be at most ${MAX_LENGTHS.pastorName} characters.`;
+  if (churchLocation && tooLong('churchLocation', churchLocation)) errors.churchLocation = `Church location must be at most ${MAX_LENGTHS.churchLocation} characters.`;
   if (!volunteerRole) errors.volunteerRole = 'Select a preferred volunteer role.';
   else if (!ROLES.includes(volunteerRole)) errors.volunteerRole = 'Select a valid volunteer role.';
 
@@ -167,13 +164,6 @@ function validateEventRegistration(body) {
     area: cleanString(body.area),
     city: cleanString(body.city),
     consentConfirmed: body.consentConfirmed === true,
-    volunteerInterest: body.volunteerInterest === true,
-    ageGroup: cleanString(body.ageGroup),
-    gender: cleanString(body.gender),
-    churchName: cleanString(body.churchName),
-    pastorName: cleanString(body.pastorName),
-    churchLocation: cleanString(body.churchLocation),
-    volunteerRole: cleanString(body.volunteerRole),
   };
 
   if (!data.firstName) errors.firstName = 'First name is required.';
@@ -189,14 +179,6 @@ function validateEventRegistration(body) {
   if (!data.city) errors.city = 'City is required.';
   else if (tooLong('churchLocation', data.city)) errors.city = `City must be at most ${MAX_LENGTHS.churchLocation} characters.`;
   if (!data.consentConfirmed) errors.consentConfirmed = 'You must confirm that registration is voluntary.';
-  if (data.volunteerInterest) {
-    if (!AGE_GROUPS.includes(data.ageGroup)) errors.ageGroup = 'Select an age group.';
-    if (data.gender && !GENDERS.includes(data.gender)) errors.gender = 'Select a valid gender.';
-    if (!data.churchName) errors.churchName = 'Church name is required.';
-    if (!data.pastorName) errors.pastorName = "Pastor's name is required.";
-    if (!data.churchLocation) errors.churchLocation = 'Church location is required.';
-    if (!ROLES.includes(data.volunteerRole)) errors.volunteerRole = 'Select a preferred volunteer role.';
-  }
   return { errors, data };
 }
 
@@ -454,21 +436,8 @@ app.post('/api/event-registrations', submitLimiter, async (req, res) => {
       [registrationId, data.firstName, data.lastName, data.mobileNumber, data.email,
         data.area, data.city, 1, REGISTRATION_TYPES.EVENT.label]
     );
-    let volunteerRegistrationId = null;
-    if (data.volunteerInterest) {
-      volunteerRegistrationId = await createRegistrationId(connection, REGISTRATION_TYPES.VOLUNTEER);
-      await connection.query(
-        `INSERT INTO volunteers
-          (registration_id, first_name, last_name, mobile_number, email, age_group, gender,
-           church_name, pastor_name, church_location, volunteer_role)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [volunteerRegistrationId, data.firstName, data.lastName, data.mobileNumber, data.email,
-          data.ageGroup, data.gender || null, data.churchName, data.pastorName,
-          data.churchLocation, data.volunteerRole]
-      );
-    }
     await connection.commit();
-    return res.status(201).json({ success: true, registrationId, volunteerRegistrationId });
+    return res.status(201).json({ success: true, registrationId });
   } catch (err) {
     if (connection) await connection.rollback();
     console.error('Event registration failed:', err.message);
@@ -553,7 +522,7 @@ app.post('/api/volunteers', submitLimiter, async (req, res) => {
          church_name, pastor_name, church_location, volunteer_role)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [registrationId,
-        data.firstName, data.lastName, data.mobileNumber || null, data.email,
+        data.firstName, data.lastName, data.mobileNumber, data.email,
         data.ageGroup, data.gender || null, data.churchName, data.pastorName,
         data.churchLocation, data.volunteerRole,
       ]

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useI18n } from "./i18n";
+import LanguageSelector from "./LanguageSelector";
 
 // Optional Vite overrides are useful for externally hosted videos. The bundled
 // public files remain the production default so media works without env setup.
 const HERO_VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL || "/videos/arise-hero.mp4";
 const PROMO_VIDEO_URL = import.meta.env.VITE_PROMO_VIDEO_URL || "/videos/arise-promo.mp4";
+const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "contact@example.com";
+const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || "https://instagram.com/REPLACE_WITH_ARISE_INSTAGRAM";
+const YOUTUBE_URL = import.meta.env.VITE_YOUTUBE_URL || "https://youtube.com/REPLACE_WITH_ARISE_YOUTUBE";
 
 const IMG = {
   logo: "/images/arise-logo.svg",
@@ -37,14 +41,14 @@ const FOOTER_LINKS = [
 ];
 
 const SPEAKERS = [
-  { name: "Bishop Samuel Patta", img: IMG.patta, description: "Description coming soon." },
-  { name: "Bonny Kinkar", img: IMG.bonny, description: "Description coming soon." },
+  { name: "Bishop Samuel Patta", img: IMG.patta },
+  { name: "Bonny Kinkar", img: IMG.bonny },
 ];
 
 const ARTISTS = [
-  { name: "Joseph Raj", img: IMG.joseph, description: "Description coming soon." },
-  { name: "Roney Maben", img: IMG.roney, description: "Description coming soon." },
-  { name: "Mark Tribhuvan", img: IMG.mark, description: "Description coming soon." },
+  { name: "Joseph Raj", img: IMG.joseph },
+  { name: "Roney Maben", img: IMG.roney },
+  { name: "Mark Tribhuvan", img: IMG.mark },
 ];
 
 function Flame() {
@@ -68,13 +72,44 @@ function HeroBackgroundVideo({ src }) {
   return (
     <video
       className="arise-hero-video"
-      controls
+      autoPlay
+      muted
       loop
       playsInline
+      preload="metadata"
+      aria-hidden="true"
       onError={() => setErrored(true)}
     >
       <source src={src} type="video/mp4" />
     </video>
+  );
+}
+
+function PortraitImage({ src, alt, className }) {
+  const [errored, setErrored] = useState(false);
+  if (!src || errored) return <div className={className ? `${className} arise-portrait-fallback` : "arise-portrait-fallback"} aria-hidden="true" />;
+  return (
+    <img
+      className={className}
+      src={src}
+      alt={alt}
+      onError={() => setErrored(true)}
+    />
+  );
+}
+
+function SocialIcon({ kind }) {
+  if (kind === "youtube") {
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4L15.8 12l-6.2 3.6z" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.2 2.3.4.6.2 1 .5 1.5 1s.8.9 1 1.5c.2.4.4 1.1.4 2.3.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.9-.4 2.3-.2.6-.5 1-1 1.5s-.9.8-1.5 1c-.4.2-1.1.4-2.3.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.2-2.3-.4-.6-.2-1-.5-1.5-1s-.8-.9-1-1.5c-.2-.4-.4-1.1-.4-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.9.4-2.3.2-.6.5-1 1-1.5s.9-.8 1.5-1c.4-.2 1.1-.4 2.3-.4C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.2 0-3.5 0-4.7.1-1 .1-1.6.2-1.9.4-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.2.3-.3.9-.4 1.9-.1 1.2-.1 1.5-.1 4.7s0 3.5.1 4.7c.1 1 .2 1.6.4 1.9.2.5.4.8.7 1.1.3.3.6.5 1.1.7.3.2.9.3 1.9.4 1.2.1 1.5.1 4.7.1s3.5 0 4.7-.1c1-.1 1.6-.2 1.9-.4.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.2-.3.3-.9.4-1.9.1-1.2.1-1.5.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.6-.4-1.9-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.3-.2-.9-.3-1.9-.4 1.2-.1 1.5-.1 4.7-.1zM12 6.9a5.1 5.1 0 1 0 0 10.2 5.1 5.1 0 0 0 0-10.2zm0 8.4a3.3 3.3 0 1 1 0-6.6 3.3 3.3 0 0 0 0 6.6zm6.5-9.6a1.2 1.2 0 1 0-2.4 0 1.2 1.2 0 0 0 2.4 0z" />
+    </svg>
   );
 }
 
@@ -102,20 +137,25 @@ function PromoVideo({ src }) {
 }
 
 export default function ArisePage() {
-  const { language, setLanguage, t } = useI18n();
+  const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
 
   useEffect(() => {
     document.title = `${t("brand")} | ${t("hero.chip")}`;
-  }, [t, language]);
+  }, [t]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!selectedPerson) return undefined;
@@ -164,7 +204,7 @@ export default function ArisePage() {
         }
 
         .arise-nav {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+          position: fixed; top: 0; left: 0; right: 0; z-index: 80;
           display: flex; align-items: center; justify-content: space-between;
           padding: 18px 6vw;
           transition: background 0.3s ease, box-shadow 0.3s ease;
@@ -175,7 +215,7 @@ export default function ArisePage() {
           backdrop-filter: blur(6px);
         }
         .arise-nav-logo { display: flex; align-items: center; gap: 10px; }
-        .arise-nav-logo img { height: 38px; width: auto; border-radius: 4px; }
+        .arise-nav-logo img { height: 40px; width: auto; display: block; border-radius: 4px; }
         .arise-nav-logo span { font-family: 'Fraunces', serif; font-size: 18px; letter-spacing: 0.03em; }
         .arise-nav-groups { display: flex; align-items: center; gap: 24px; }
         .arise-nav-links { display: flex; gap: 30px; }
@@ -197,12 +237,22 @@ export default function ArisePage() {
         .arise-language { display: flex; align-items: center; gap: 6px; color: var(--lav); font-size: 12px; white-space: nowrap; }
         .arise-language button { border: 0; padding: 2px; background: transparent; color: var(--lav); font: inherit; cursor: pointer; }
         .arise-language button.active, .arise-language button:hover { color: var(--gold); }
-        .arise-nav-burger { display: none; background: none; border: none; color: var(--cream); font-size: 22px; cursor: pointer; }
-        .arise-mobile-menu {
-          display: none; flex-direction: column; gap: 18px; padding: 22px 6vw 26px;
-          background: rgba(31,27,46,0.97);
+        .arise-nav-burger {
+          position: relative; z-index: 90;
+          display: none; background: none; border: none; color: var(--cream);
+          font-size: 22px; cursor: pointer; padding: 8px; line-height: 1;
         }
+        .arise-mobile-menu {
+          display: none;
+          position: fixed; top: 0; left: 0; right: 0; z-index: 70;
+          padding: 86px 6vw 28px;
+          flex-direction: column; gap: 16px;
+          background: rgba(31,27,46,0.97);
+          box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+        }
+        .arise-mobile-menu.open { display: flex; }
         .arise-mobile-menu a { color: var(--cream); text-decoration: none; font-size: 15px; }
+        .arise-mobile-menu .arise-language { padding-top: 8px; }
 
         .arise-hero {
           position: relative;
@@ -212,18 +262,24 @@ export default function ArisePage() {
           padding: 140px 6vw 170px;
           background: linear-gradient(180deg, #1F1B2E 0%, #1B1729 60%, #17131F 100%);
         }
-        .arise-hero-media { position: absolute; inset: 0; z-index: 0; }
-        .arise-hero-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .arise-hero-media { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+        .arise-hero-video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
         .arise-hero-overlay {
           position: absolute; inset: 0;
           background:
-            radial-gradient(ellipse at 50% 0%, rgba(227,168,87,0.16), transparent 55%),
-            linear-gradient(180deg, rgba(31,27,46,0.55) 0%, rgba(27,23,41,0.75) 55%, rgba(23,19,31,0.95) 100%);
+            radial-gradient(ellipse at 50% 18%, rgba(31,27,46,0.28), transparent 58%),
+            linear-gradient(180deg, rgba(31,27,46,0.62) 0%, rgba(27,23,41,0.58) 42%, rgba(23,19,31,0.88) 100%);
         }
         .arise-hero-content {
           position: relative; z-index: 1;
           display: flex; flex-direction: column; align-items: center;
           text-align: center; max-width: 760px;
+        }
+        .arise-hero-content h1,
+        .arise-hero-sub,
+        .arise-hero-meta,
+        .arise-hero-chip {
+          text-shadow: 0 2px 18px rgba(15,12,24,0.72), 0 0 28px rgba(15,12,24,0.4);
         }
         .arise-hero-chip {
           display: inline-flex; align-items: center; gap: 10px;
@@ -245,18 +301,18 @@ export default function ArisePage() {
         .arise-hero h1 em { font-style: italic; color: var(--gold); }
         .arise-hero-sub {
           font-size: clamp(15px, 1.6vw, 18px);
-          color: var(--lav);
+          color: #E8E2EE;
           max-width: 620px;
           line-height: 1.75;
           margin: 0 auto 36px;
-          font-weight: 300;
+          font-weight: 400;
         }
         .arise-hero-meta {
           display: flex; flex-wrap: wrap; gap: 28px; justify-content: center;
           margin-bottom: 40px;
         }
         .arise-hero-meta div { text-align: left; }
-        .arise-hero-meta .label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lav); margin-bottom: 4px; }
+        .arise-hero-meta .label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #D8D2E4; margin-bottom: 4px; }
         .arise-hero-meta .value { font-family: 'Fraunces', serif; font-size: 19px; }
 
         .arise-btn {
@@ -362,7 +418,12 @@ export default function ArisePage() {
           border: 1px solid rgba(227,168,87,0.35);
           pointer-events: none;
         }
-        .arise-card-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; filter: saturate(0.92); }
+        .arise-card-frame img,
+        .arise-card-frame .arise-portrait-fallback {
+          width: 100%; height: 100%; object-fit: cover; object-position: center 18%;
+          display: block; filter: none;
+        }
+        .arise-portrait-fallback { background: var(--panel-2); }
         .arise-card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; margin: 0; }
 
         .arise-person-modal {
@@ -381,9 +442,15 @@ export default function ArisePage() {
           padding: 28px;
           text-align: center;
         }
-        .arise-person-modal-content img {
-          width: 120px; height: 150px; object-fit: cover;
-          object-position: center; border-radius: 4px; margin-bottom: 18px;
+        .arise-person-modal-content img,
+        .arise-person-modal-content .arise-portrait-fallback {
+          width: min(72vw, 240px);
+          aspect-ratio: 4 / 5;
+          height: auto;
+          object-fit: cover;
+          object-position: center 18%;
+          border-radius: 4px;
+          margin: 0 auto 18px;
         }
         .arise-person-modal-content h2 {
           font-family: 'Fraunces', serif; font-weight: 500;
@@ -422,7 +489,14 @@ export default function ArisePage() {
         .arise-footer a { color: var(--lav); text-decoration: none; font-size: 14px; }
         .arise-footer a:hover { color: var(--cream); }
         .arise-footer-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .arise-footer-logo img { height: 34px; border-radius: 4px; }
+        .arise-footer-logo img { height: 36px; width: auto; display: block; border-radius: 4px; }
+        .arise-social-links { flex-direction: row; gap: 14px; }
+        .arise-social-links a {
+          display: inline-flex; align-items: center; justify-content: center;
+          width: 40px; height: 40px; border-radius: 50%;
+          border: 1px solid rgba(227,168,87,0.35); color: var(--gold);
+        }
+        .arise-social-links a:hover { color: var(--cream); border-color: var(--gold); }
         .arise-footer-logo span { font-family: 'Fraunces', serif; font-size: 17px; }
         .arise-footer-bottom {
           border-top: 1px solid rgba(255,255,255,0.08);
@@ -447,6 +521,7 @@ export default function ArisePage() {
         }
         @media (max-width: 520px) {
           .arise-grid.two, .arise-grid.three { grid-template-columns: 1fr; max-width: 320px; }
+          .arise-hero-sub { color: #F0EBF6; }
         }
         @media (prefers-reduced-motion: reduce) {
           .arise-btn, .arise-nav-links a::after { transition: none; }
@@ -466,29 +541,28 @@ export default function ArisePage() {
           </div>
           <div className="arise-nav-actions">
             <a className="arise-nav-action" href="/volunteer">{t("nav.join")}</a>
+            <a className="arise-nav-action secondary" href="/register">{t("nav.register")}</a>
             <a className="arise-nav-action secondary" href="/give">{t("nav.give")}</a>
-            <div className="arise-language" aria-label={t("nav.language")}>
-              <button className={language === "en" ? "active" : ""} type="button" onClick={() => setLanguage("en")}>EN</button>
-              <span>|</span>
-              <button className={language === "hi" ? "active" : ""} type="button" onClick={() => setLanguage("hi")}>हिंदी</button>
-            </div>
+            <LanguageSelector />
           </div>
         </div>
         <button
           className="arise-nav-burger"
           aria-label={t("common.toggleMenu")}
+          aria-expanded={menuOpen}
+          aria-controls="arise-mobile-menu"
+          type="button"
           onClick={() => setMenuOpen((v) => !v)}
         >
           {menuOpen ? "✕" : "☰"}
         </button>
       </nav>
-      {menuOpen && (
-        <div className="arise-mobile-menu">
-          {MOBILE_LINKS.map((l) => (
-            <a key={l.key} href={l.href} onClick={() => setMenuOpen(false)}>{t(`nav.${l.key}`)}</a>
-          ))}
-        </div>
-      )}
+      <div id="arise-mobile-menu" className={`arise-mobile-menu ${menuOpen ? "open" : ""}`}>
+        {MOBILE_LINKS.map((l) => (
+          <a key={l.key} href={l.href} onClick={() => setMenuOpen(false)}>{t(`nav.${l.key}`)}</a>
+        ))}
+        <LanguageSelector />
+      </div>
 
       <header className="arise-hero">
         <div className="arise-hero-media" aria-hidden="true">
@@ -548,7 +622,7 @@ export default function ArisePage() {
                 aria-label={t("people.viewDetails", { name: s.name })}
               >
                 <div className="arise-card-frame">
-                  <img src={s.img} alt={s.name} style={{ objectPosition: s.objectPosition || "center" }} />
+                  <PortraitImage src={s.img} alt={s.name} />
                 </div>
                 <h3>{s.name}</h3>
               </button>
@@ -569,7 +643,7 @@ export default function ArisePage() {
                 aria-label={t("people.viewDetails", { name: a.name })}
               >
                 <div className="arise-card-frame">
-                  <img src={a.img} alt={a.name} style={{ objectPosition: a.objectPosition || "center" }} />
+                  <PortraitImage src={a.img} alt={a.name} />
                 </div>
                 <h3>{a.name}</h3>
               </button>
@@ -629,11 +703,7 @@ export default function ArisePage() {
             >
               ×
             </button>
-            <img
-              src={selectedPerson.img}
-              alt={selectedPerson.name}
-              style={{ objectPosition: selectedPerson.objectPosition || "center" }}
-            />
+            <PortraitImage src={selectedPerson.img} alt={selectedPerson.name} />
             <h2 id="person-modal-title" className="arise-display">{selectedPerson.name}</h2>
             <p>{t("people.descriptionSoon")}</p>
           </div>
@@ -660,14 +730,20 @@ export default function ArisePage() {
           <div>
             <h4>{t("footer.contact")}</h4>
             <ul>
-              <li><a href="mailto:simplesamj@gmail.com">simplesamj@gmail.com</a></li>
-              <li><a href="tel:+919829102890">(+91) 9829102890</a></li>
+              <li><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
             </ul>
             <h4 style={{ marginTop: 24 }}>{t("footer.socials")}</h4>
-            <ul style={{ flexDirection: "row", gap: 16 }}>
-              <li><a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-              <li><a href="https://instagram.com/arisecommunityindia" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-              <li><a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">TikTok</a></li>
+            <ul className="arise-social-links">
+              <li>
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={t("footer.instagram")}>
+                  <SocialIcon kind="instagram" />
+                </a>
+              </li>
+              <li>
+                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label={t("footer.youtube")}>
+                  <SocialIcon kind="youtube" />
+                </a>
+              </li>
             </ul>
           </div>
         </div>
