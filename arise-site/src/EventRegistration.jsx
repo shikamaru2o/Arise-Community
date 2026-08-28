@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import { useI18n } from "./i18n";
 
@@ -94,6 +95,7 @@ export default function EventRegistration() {
     <div className="er-root">
       <EventRegistrationStyles />
       <div className="er-language"><LanguageSelector /></div>
+      <Link to="/" className="er-home">{t("common.backHome")}</Link>
       {status === "success" ? (
         <section className="er-success" aria-live="polite">
           <span className="er-eyebrow">{t("event.eyebrow")}</span>
@@ -114,7 +116,7 @@ export default function EventRegistration() {
             <Field label={t("event.lastName")} required error={errors.lastName}><input value={form.lastName} onChange={update("lastName")} type="text" /></Field>
           </div>
           <div className="er-row">
-            <Field label={t("event.mobile")} required error={errors.mobileNumber}><input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" autoComplete="tel" /></Field>
+            <Field label={t("event.mobile")} required error={errors.mobileNumber}><input value={form.mobileNumber} onChange={update("mobileNumber")} type="tel" autoComplete="tel" required /></Field>
             <Field label={t("event.email")} required error={errors.email}><input value={form.email} onChange={update("email")} type="email" autoComplete="email" /></Field>
           </div>
           <div className="er-row">
@@ -139,8 +141,25 @@ export default function EventRegistration() {
 function EventRegistrationStyles() {
   return (
     <style>{`
-      .er-root { --er-ink: #1F1B2E; --er-gold: #E3A857; --er-cream: #F7F3EC; --er-lav: #A79FBF; --er-panel: #2A2440; --er-danger: #E0645A; position: relative; min-height: 100vh; padding: 60px 6vw; display: flex; justify-content: center; align-items: flex-start; background: var(--er-ink); color: var(--er-cream); font-family: 'Work Sans', sans-serif; }
+      .er-root { --er-ink: #1F1B2E; --er-gold: #E3A857; --er-cream: #F7F3EC; --er-lav: #A79FBF; --er-panel: #2A2440; --er-danger: #E0645A; position: relative; min-height: 100vh; padding: 60px 6vw; display: flex; justify-content: center; align-items: flex-start; background: var(--er-ink); color: var(--er-cream); font-family: 'Work Sans', sans-serif; color-scheme: dark; }
       .er-language { position: absolute; top: 24px; right: 6vw; }
+      .er-home {
+        position: absolute;
+        top: 24px;
+        left: 6vw;
+        display: inline-flex;
+        align-items: center;
+        color: var(--er-lav);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        border: 1px solid rgba(227,168,87,0.35);
+        border-radius: 999px;
+        padding: 8px 18px;
+        transition: color 0.25s ease, border-color 0.25s ease;
+      }
+      .er-home:hover { color: var(--er-gold); border-color: var(--er-gold); }
       .er-form, .er-success { width: 100%; max-width: 640px; margin: 20px 0; padding: 40px; background: var(--er-panel); border: 1px solid rgba(227,168,87,0.3); border-radius: 6px; }
       .er-success { max-width: 520px; text-align: center; }
       .er-eyebrow { color: var(--er-gold); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }

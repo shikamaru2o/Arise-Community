@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import { useI18n } from "./i18n";
 
@@ -8,8 +9,8 @@ const AGE_GROUPS = ["15-21", "21-30", "30 Above"];
 const GENDERS = ["Male", "Female"];
 const ROLES = [
   "Registration", "Ushers", "Parking", "Security", "Hospitality",
-  "Prayers & Counselling", "Production", "Media", "Stage",
-  "Medical", "Logistics", "Leadership",
+  "Prayer and Counselling", "Production", "Media", "Stage",
+  "Medical", "Logistics",
 ];
 
 const EMPTY_FORM = {
@@ -110,6 +111,7 @@ export default function VolunteerForm() {
       <div className="vf-root">
         <VfStyles />
         <div className="vf-language"><LanguageSelector /></div>
+        <Link to="/" className="vf-home">{t("common.backHome")}</Link>
         <div className="vf-success">
           <h2>{t("volunteer.successTitle")}</h2>
           <p>{t("volunteer.successText")}</p>
@@ -125,6 +127,7 @@ export default function VolunteerForm() {
     <div className="vf-root">
       <VfStyles />
       <div className="vf-language"><LanguageSelector /></div>
+      <Link to="/" className="vf-home">{t("common.backHome")}</Link>
       <form className="vf-form" onSubmit={handleSubmit} noValidate>
         <h2 className="vf-title">{t("volunteer.title")}</h2>
         <p className="vf-subtitle">{t("volunteer.subtitle")}</p>
@@ -209,8 +212,26 @@ function VfStyles() {
         padding: 60px 6vw;
         display: flex;
         justify-content: center;
+        color-scheme: dark;
       }
       .vf-language { position: absolute; top: 24px; right: 6vw; }
+      .vf-home {
+        position: absolute;
+        top: 24px;
+        left: 6vw;
+        display: inline-flex;
+        align-items: center;
+        color: var(--lav);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        border: 1px solid rgba(227,168,87,0.35);
+        border-radius: 999px;
+        padding: 8px 18px;
+        transition: color 0.25s ease, border-color 0.25s ease;
+      }
+      .vf-home:hover { color: var(--gold); border-color: var(--gold); }
       .vf-form {
         width: 100%;
         max-width: 640px;
@@ -238,6 +259,7 @@ function VfStyles() {
         outline: none;
         border-color: var(--gold);
       }
+      .vf-field option { background: #241F38; color: #F7F3EC; }
       .vf-error { color: var(--danger); font-size: 12px; }
       .vf-server-message { color: var(--danger); font-size: 13px; margin: 4px 0 16px; }
       .vf-btn {

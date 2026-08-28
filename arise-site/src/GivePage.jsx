@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import LanguageSelector from "./LanguageSelector";
 import { useI18n } from "./i18n";
+import { Link } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || "";
@@ -102,6 +103,7 @@ export default function GivePage() {
     <main className="give-root">
       <GiveStyles />
       <div className="give-language"><LanguageSelector /></div>
+      <Link to="/" className="give-home-button">{t("common.backHome")}</Link>
       <section className="give-intro">
         <span className="give-eyebrow">{t("give.eyebrow")}</span>
         <h1>{t("give.title")}</h1>
@@ -142,6 +144,23 @@ function GiveStyles() {
   return <style>{`
     .give-root { position: relative; min-height: 100vh; padding: 112px 6vw 70px; background: #1F1B2E; color: #F7F3EC; font-family: 'Work Sans', sans-serif; }
     .give-language { position: absolute; top: 24px; right: 6vw; }
+    .give-home-button {
+      position: absolute;
+      top: 24px;
+      left: 6vw;
+      display: inline-flex;
+      align-items: center;
+      color: #A79FBF;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      border: 1px solid rgba(227,168,87,0.35);
+      border-radius: 999px;
+      padding: 8px 18px;
+      transition: color 0.25s ease, border-color 0.25s ease;
+    }
+    .give-home-button:hover { color: #E3A857; border-color: #E3A857; }
     .give-intro { max-width: 720px; margin: 0 auto 58px; text-align: center; }
     .give-eyebrow, .give-method-number { color: #E3A857; font-size: 12px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
     .give-intro h1 { margin: 10px 0 14px; font: 500 58px/1 'Fraunces', serif; }

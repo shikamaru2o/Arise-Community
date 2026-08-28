@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS volunteers (
   church_location VARCHAR(255) NOT NULL,
   volunteer_role ENUM(
     'Registration', 'Ushers', 'Parking', 'Security', 'Hospitality',
-    'Prayers & Counselling', 'Production', 'Media', 'Stage',
-    'Medical', 'Logistics', 'Leadership'
+    'Prayer & Counselling', 'Production', 'Media', 'Stage',
+    'Medical', 'Logistics',type="tel"
   ) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_volunteers_role (volunteer_role),
