@@ -59,7 +59,7 @@ const AGE_GROUPS = ['15-21', '21-30', '30 Above'];
 const GENDERS = ['Male', 'Female'];
 const ROLES = [
   'Registration', 'Ushers', 'Parking', 'Security', 'Hospitality',
-  'Prayer & Counselling', 'Production', 'Media', 'Stage',
+  'Prayer and Counselling', 'Production', 'Media', 'Stage',
   'Medical', 'Logistics',
 ];
 const REGISTRATION_TYPES = {

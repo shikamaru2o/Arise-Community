@@ -182,7 +182,14 @@ function EventRegistrationStyles() {
       .er-id-label { margin-top: 28px; color: var(--er-lav); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
       .er-id { margin: 10px 0 18px; color: var(--er-gold); font-family: 'Fraunces', serif; font-size: 38px; letter-spacing: 0.04em; }
       .er-note { max-width: 360px; margin-left: auto !important; margin-right: auto !important; }
-      @media (max-width: 560px) { .er-root { padding: 32px 6vw; } .er-form, .er-success { padding: 26px; } .er-row { grid-template-columns: 1fr; gap: 0; } .er-id { font-size: 29px; } }
+      @media (max-width: 560px) {
+        .er-root { padding: calc(env(safe-area-inset-top, 0px) + 112px) 6vw 60px; }
+        .er-language { top: calc(env(safe-area-inset-top, 0px) + 16px); }
+        .er-home { top: calc(env(safe-area-inset-top, 0px) + 16px); }
+        .er-form, .er-success { padding: 26px; }
+        .er-row { grid-template-columns: 1fr; gap: 0; }
+        .er-id { font-size: 29px; }
+      }
     `}</style>
   );
 }

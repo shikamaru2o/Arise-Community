@@ -185,6 +185,12 @@ function GiveStyles() {
     .give-success h2 { margin: 0 0 8px; font: 500 26px 'Fraunces', serif; }
     .give-success p { color: #A79FBF; }
     @media (max-width: 820px) { .give-methods { grid-template-columns: 1fr; max-width: 620px; } .give-method { min-height: auto; } }
-    @media (max-width: 520px) { .give-root { padding: 90px 6vw 45px; } .give-intro h1 { font-size: 46px; } .give-method { padding: 24px; } }
+    @media (max-width: 520px) {
+      .give-root { padding: calc(env(safe-area-inset-top, 0px) + 112px) 6vw 45px; }
+      .give-language { top: calc(env(safe-area-inset-top, 0px) + 16px); }
+      .give-home-button { top: calc(env(safe-area-inset-top, 0px) + 16px); }
+      .give-intro h1 { font-size: 46px; }
+      .give-method { padding: 24px; }
+    }
   `}</style>;
 }
